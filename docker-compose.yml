@@ -1,0 +1,21 @@
+version: "3"
+services:
+  mysql:
+    image: mysql:5.7
+    environment:
+      MYSQL_ROOT_PASSWORD: password
+      MYSQL_DATABASE: mastermind
+      MYSQL_USER: mastermind
+      MYSQL_PASSWORD: mastermind
+    ports:
+      - 3306:3306
+
+  postgres:
+    image: postgres:9.6
+    environment:
+      POSTGRES_DB: mastermind
+      POSTGRES_USER: mastermind
+      POSTGRES_PASSWORD: mastermind
+    ports:
+      - 5432:5432
+
