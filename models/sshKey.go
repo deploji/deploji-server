@@ -40,7 +40,7 @@ func SaveSshKey(key *SshKey) *SshKey {
 			return nil
 		}
 	} else {
-		err := GetDB().Update(key).Error
+		err := GetDB().Omit("created_at").Update(key).Error
 		if err != nil {
 			fmt.Println(err)
 			return nil

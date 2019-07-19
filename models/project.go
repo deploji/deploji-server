@@ -7,10 +7,12 @@ import (
 
 type Project struct {
 	gorm.Model
-	Name     string `gorm:"type:text"`
-	RepoUrl  string `gorm:"type:text"`
-	SshKeyID uint
-	SshKey   SshKey
+	Name       string `gorm:"type:text"`
+	RepoUrl    string `gorm:"type:text"`
+	RepoBranch string `gorm:"type:text"`
+	RepoUser   string `gorm:"type:text"`
+	SshKeyID   uint
+	SshKey     SshKey
 }
 
 func GetProjects() []*Project {

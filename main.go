@@ -18,6 +18,7 @@ func main() {
 	router.HandleFunc("/ssh-keys/{id}", controllers.DeleteSshKeys).Methods("DELETE")
 	router.HandleFunc("/projects", controllers.GetProjects).Methods("GET")
 	router.HandleFunc("/projects/{id}", controllers.GetProject).Methods("GET")
+	router.HandleFunc("/projects/{id}/synchronize", controllers.SynchronizeProject).Methods("POST")
 	router.HandleFunc("/projects", controllers.SaveProjects).Methods("POST")
 	router.HandleFunc("/projects", controllers.SaveProjects).Methods("PUT")
 
