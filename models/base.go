@@ -43,7 +43,7 @@ func init() {
 
 	db = conn
 	db.LogMode(true)
-	db.AutoMigrate(&Project{}, &SshKey{})
+	db.AutoMigrate(&Project{}, &SshKey{}, &Application{}, &Inventory{}, &Repository{}, &Deployment{})
 
 }
 

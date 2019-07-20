@@ -17,5 +17,5 @@ func Respond(w http.ResponseWriter, data map[string] interface{})  {
 
 func Error(w http.ResponseWriter, err error, status int) {
 	logrus.Errorln(err.Error())
-	http.Error(w, err.Error(), http.StatusInternalServerError)
+	http.Error(w, err.Error(), status)
 }
