@@ -5,6 +5,7 @@ import (
 	"errors"
 	"github.com/gorilla/mux"
 	"github.com/sotomskir/mastermind-server/models"
+	"github.com/sotomskir/mastermind-server/services/amqpService"
 	"github.com/sotomskir/mastermind-server/utils"
 	"log"
 	"net/http"
@@ -38,10 +39,24 @@ var SaveDeployments = func(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	err = models.SaveDeployment(&deployment)
+	if err != nil {
+		utils.Error(w, err, http.StatusInternalServerError)
+		return
+	}
+	err = amqpService.Send(deployment)
 	if nil != err {
 		utils.Error(w, err, http.StatusInternalServerError)
 		return
 	}
+
 	w.Header().Add("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(deployment)
+}
+
+var GetDeploymentLogs = func(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	id, _ := strconv.ParseUint(vars["id"], 10, 16)
+	deploymentLogs := models.GetDeploymentLogs(uint(id))
+	w.Header().Add("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(deploymentLogs)
 }

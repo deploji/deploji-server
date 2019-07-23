@@ -19,6 +19,7 @@ func main() {
 	router.HandleFunc("/deployments", controllers.GetDeployments).Methods("GET")
 	router.HandleFunc("/deployments", controllers.SaveDeployments).Methods("POST")
 	router.HandleFunc("/deployments/{id}", controllers.GetDeployment).Methods("GET")
+	router.HandleFunc("/deployments/{id}/logs", controllers.GetDeploymentLogs).Methods("GET")
 	router.HandleFunc("/inventories", controllers.GetInventories).Methods("GET")
 	router.HandleFunc("/inventories", controllers.SaveInventories).Methods("POST")
 	router.HandleFunc("/inventories", controllers.SaveInventories).Methods("PUT")

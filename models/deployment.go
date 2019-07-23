@@ -11,6 +11,7 @@ type Deployment struct {
 	Version       string `gorm:"type:text"`
 	Inventory     Inventory
 	InventoryID   uint
+	Status        Status
 }
 
 func GetDeployments() []*Deployment {
@@ -24,7 +25,7 @@ func GetDeployments() []*Deployment {
 
 func GetDeployment(id uint) *Deployment {
 	var deployment Deployment
-	err := GetDB().Preload("Application").Preload("Inventory").First(&deployment, id).Error
+	err := GetDB().Preload("Application.Project").Preload("Inventory").First(&deployment, id).Error
 	if err != nil {
 		return nil
 	}
@@ -33,6 +34,14 @@ func GetDeployment(id uint) *Deployment {
 
 func SaveDeployment(deployment *Deployment) error {
 	err := GetDB().Create(deployment).Error
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func UpdateDeploymentStatus(deployment *Deployment) error {
+	err := GetDB().Model(deployment).Update("status", deployment.Status).Error
 	if err != nil {
 		return err
 	}
