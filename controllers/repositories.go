@@ -14,7 +14,7 @@ import (
 var GetRepositories = func(w http.ResponseWriter, r *http.Request) {
 	repositories := models.GetRepositories()
 	if repositories == nil {
-		utils.Error(w, errors.New("not found"), http.StatusInternalServerError)
+		utils.Error(w, "Cannot load repositories", errors.New("not found"), http.StatusInternalServerError)
 		return
 	}
 	w.Header().Add("Content-Type", "application/json")
@@ -26,7 +26,7 @@ var GetRepository = func(w http.ResponseWriter, r *http.Request) {
 	id, _ := strconv.ParseUint(vars["id"], 10, 16)
 	repository := models.GetRepository(uint(id))
 	if repository == nil {
-		utils.Error(w, errors.New("not found"), http.StatusNotFound)
+		utils.Error(w, "Cannot load repository", errors.New("not found"), http.StatusNotFound)
 		return
 	}
 	w.Header().Add("Content-Type", "application/json")
@@ -38,12 +38,12 @@ var SaveRepositories = func(w http.ResponseWriter, r *http.Request) {
 	err := json.NewDecoder(r.Body).Decode(&repository)
 	log.Println(err)
 	if nil != err {
-		utils.Error(w, err, http.StatusInternalServerError)
+		utils.Error(w, "Cannot decode reposiitory", err, http.StatusInternalServerError)
 		return
 	}
 	err = models.SaveRepository(&repository)
 	if nil != err {
-		utils.Error(w, err, http.StatusInternalServerError)
+		utils.Error(w, "Cannot save repository", err, http.StatusInternalServerError)
 		return
 	}
 	w.Header().Add("Content-Type", "application/json")
@@ -55,12 +55,12 @@ var DeleteRepository = func(w http.ResponseWriter, r *http.Request) {
 	id, _ := strconv.ParseUint(vars["id"], 10, 16)
 	repository := models.GetRepository(uint(id))
 	if repository == nil {
-		utils.Error(w, errors.New("not found"), http.StatusNotFound)
+		utils.Error(w, "Cannot load repository", errors.New("not found"), http.StatusNotFound)
 		return
 	}
 	err := models.DeleteRepository(repository)
 	if err != nil {
-		utils.Error(w, err, http.StatusInternalServerError)
+		utils.Error(w, "Cannot delete repository", err, http.StatusInternalServerError)
 		return
 	}
 	w.Header().Add("Content-Type", "application/json")

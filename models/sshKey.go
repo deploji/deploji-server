@@ -2,10 +2,11 @@ package models
 
 import (
 	"fmt"
+	"github.com/jinzhu/gorm"
 )
 
 type SshKey struct {
-	ID uint
+	gorm.Model
 	Title string `gorm:"type:text"`
 	Key   string `gorm:"type:text"`
 }
@@ -21,7 +22,6 @@ func GetSshKeys() []*SshKey {
 	return keys
 }
 
-
 func GetSshKey(id uint64) *SshKey {
 	var key SshKey
 	err := GetDB().First(&key, id).Error
@@ -31,20 +31,21 @@ func GetSshKey(id uint64) *SshKey {
 	return &key
 }
 
-func SaveSshKey(key *SshKey) *SshKey {
+
+func SaveSshKey(key *SshKey) error {
 	if GetDB().NewRecord(key) {
 		err := GetDB().Create(key).Error
 		if err != nil {
-			return nil
+			return err
 		}
 	} else {
-		err := GetDB().Omit("created_at").Update(key).Error
+		err := GetDB().Omit("created_at").Save(key).Error
 		if err != nil {
-			return nil
+			return err
 		}
 	}
 
-	return key
+	return nil
 }
 
 func DeleteSshKey(key *SshKey) error {

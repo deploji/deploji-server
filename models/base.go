@@ -47,12 +47,14 @@ func init() {
 		&Project{},
 		&SshKey{},
 		&Application{},
+		&ApplicationInventory{},
 		&Inventory{},
 		&Repository{},
 		&DeploymentLog{},
+		&Template{},
 		&Deployment{})
 }
 
 func GetDB() *gorm.DB {
-	return db
+	return db.Set("gorm:association_autoupdate", false)
 }

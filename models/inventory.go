@@ -6,15 +6,20 @@ import (
 
 type Inventory struct {
 	gorm.Model
-	Name       string `gorm:"type:text"`
-	Project    Project
-	ProjectID  uint
-	SourceFile string
+	Name                   string `gorm:"type:text"`
+	Project                Project
+	ProjectID              uint
+	SourceFile             string
+	Key                    SshKey
+	ApplicationInventories []ApplicationInventory
 }
 
 func GetInventories() []*Inventory {
 	inventories := make([]*Inventory, 0)
-	err := GetDB().Preload("Project").Find(&inventories).Error
+	err := GetDB().
+		Preload("Project").
+		Preload("ApplicationInventories.Application").
+		Find(&inventories).Error
 	if err != nil {
 		return nil
 	}
@@ -52,4 +57,20 @@ func DeleteInventory(inventory *Inventory) error {
 		return err
 	}
 	return nil
+}
+
+func GetInventoriesByApplicationId(id uint) *[]Inventory {
+	var inventories []Inventory
+	var appInventories []ApplicationInventory
+	err := GetDB().
+		Preload("Inventory").
+		Where(&ApplicationInventory{IsActive: true, ApplicationID: id}).
+		Find(&appInventories).Error
+	if err != nil {
+		return nil
+	}
+	for _, v := range appInventories {
+		inventories = append(inventories, v.Inventory)
+	}
+	return &inventories
 }

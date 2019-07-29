@@ -2,6 +2,7 @@ package models
 
 import (
 	"github.com/jinzhu/gorm"
+	"time"
 )
 
 type Application struct {
@@ -13,12 +14,17 @@ type Application struct {
 	Repository         Repository
 	RepositoryID       uint
 	RepositoryArtifact string
+	Inventories        []ApplicationInventory
 	AnsiblePlaybook    string `gorm:"type:text"`
 }
 
 func GetApplications() ([]*Application, error) {
 	applications := make([]*Application, 0)
-	err := GetDB().Preload("Project").Preload("Repository").Find(&applications).Error
+	err := GetDB().
+		Preload("Project").
+		Preload("Repository").
+		Preload("Inventories.Inventory").
+		Find(&applications).Error
 	if err != nil {
 		return nil, err
 	}
@@ -27,7 +33,11 @@ func GetApplications() ([]*Application, error) {
 
 func GetApplication(id uint) *Application {
 	var application Application
-	err := GetDB().Preload("Project").Preload("Repository").First(&application, id).Error
+	err := GetDB().
+		Preload("Project").
+		Preload("Repository").
+		Preload("Inventories.Inventory").
+		First(&application, id).Error
 	if err != nil {
 		return nil
 	}
@@ -41,8 +51,30 @@ func SaveApplication(application *Application) error {
 			return err
 		}
 	} else {
-		err := GetDB().Omit("created_at").Save(application).Error
-		if err != nil {
+		if err := GetDB().
+			Table("application_inventories").
+			Where("application_id=?", application.ID).
+			UpdateColumn("deleted_at", nil).Error; err != nil {
+			return err
+		}
+		if err := GetDB().Omit("created_at").Save(application).Error; err != nil {
+			return err
+		}
+		var inventoryIds []uint
+		for _, inventory := range application.Inventories {
+			inventoryIds = append(inventoryIds, inventory.InventoryID)
+		}
+		if err := GetDB().
+			Table("application_inventories").
+			Where("application_id=?", application.ID).
+			UpdateColumn("deleted_at", time.Now()).Error; err != nil {
+			return err
+		}
+		if err := GetDB().
+			Table("application_inventories").
+			Where("application_id=?", application.ID).
+			Where("inventory_id IN (?)", inventoryIds).
+			UpdateColumn("deleted_at", nil).Error; err != nil {
 			return err
 		}
 	}

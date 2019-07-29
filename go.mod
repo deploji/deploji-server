@@ -2,6 +2,7 @@ module github.com/sotomskir/mastermind-server
 
 require (
 	cloud.google.com/go v0.41.0 // indirect
+	github.com/biezhi/gorm-paginator/pagination v0.0.0-20190124091837-7a5c8ed20334
 	github.com/coreos/bbolt v1.3.3 // indirect
 	github.com/coreos/etcd v3.3.13+incompatible // indirect
 	github.com/coreos/go-semver v0.3.0 // indirect
@@ -15,8 +16,7 @@ require (
 	github.com/golang/groupcache v0.0.0-20190702054246-869f871628b6 // indirect
 	github.com/gorilla/mux v1.6.2
 	github.com/grpc-ecosystem/grpc-gateway v1.9.4 // indirect
-	github.com/jinzhu/gorm v1.9.1
-	github.com/jinzhu/inflection v0.0.0-20180308033659-04140366298a // indirect
+	github.com/jinzhu/gorm v1.9.2
 	github.com/joho/godotenv v1.3.0
 	github.com/kevinburke/ssh_config v0.0.0-20190630040420-2e50c441276c // indirect
 	github.com/kisielk/errcheck v1.2.0 // indirect
