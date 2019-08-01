@@ -11,7 +11,7 @@ import (
 
 var db *gorm.DB
 
-func init() {
+func InitDatabase() {
 
 	e := godotenv.Load()
 	if e != nil {

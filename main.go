@@ -2,15 +2,34 @@ package main
 
 import (
 	"fmt"
+	"github.com/casbin/casbin/v2"
+	gormadapter "github.com/casbin/gorm-adapter/v2"
 	"github.com/gorilla/mux"
 	"github.com/sotomskir/mastermind-server/controllers"
+	"github.com/sotomskir/mastermind-server/models"
+	"github.com/sotomskir/mastermind-server/services/auth"
+	"log"
 	"net/http"
 	"os"
 )
 
-func main() {
 
-	router := mux.NewRouter()
+func main() {
+	uri := fmt.Sprintf("host=%s port=%s user=%s dbname=%s password=%s sslmode=disable", "localhost", "5432", "mastermind", "mastermind", "mastermind")
+	a, err := gormadapter.NewAdapter("postgres", uri, true) // Your driver and data source.
+	if err != nil {
+		log.Printf("NewAdapter error: %s", err)
+	}
+	auth.E, _ = casbin.NewEnforcer("rbac_model.conf", a)
+
+
+
+	ctx, done := context.WithCancel(context.Background())
+	models.InitDatabase()
+	go func() {
+		amqpService.Publish(amqpService.Redial(ctx, os.Getenv("AMQP_URL")), amqpService.Jobs, "jobs")
+		done()
+	}()
 
 	router.HandleFunc("/ssh-keys", controllers.GetSshKeys).Methods("GET")
 	router.HandleFunc("/ssh-keys", controllers.SaveSshKeys).Methods("POST")
