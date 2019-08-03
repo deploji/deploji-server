@@ -1,0 +1,62 @@
+package controllers
+
+import (
+	"encoding/json"
+	"fmt"
+	"github.com/sotomskir/mastermind-server/dto"
+	"github.com/sotomskir/mastermind-server/models"
+	"github.com/sotomskir/mastermind-server/services"
+	"github.com/sotomskir/mastermind-server/utils"
+	"log"
+	"net/http"
+)
+
+var Authenticate = func(w http.ResponseWriter, r *http.Request) {
+	w.Header().Add("Content-Type", "application/json")
+	var credentials dto.Credentials
+	err := json.NewDecoder(r.Body).Decode(&credentials)
+	if err != nil || credentials.Username == "" || credentials.Password == "" {
+		utils.Error(w, "Bad request", fmt.Errorf("bad request"), http.StatusBadRequest)
+		return
+	}
+	user := models.GetUserByUsername(credentials.Username)
+	if user == nil || user.IsActive == false {
+		utils.Error(w, "Unauthorized", fmt.Errorf("user not found or inactive"), http.StatusUnauthorized)
+		return
+	}
+
+	if models.GetSettingBoolValue("ldap", "enabled", false) {
+		authenticated, _ := services.AuthenticateLDAP(user, credentials.Password)
+		if authenticated == true {
+			token, err := services.GenerateToken(user)
+			if err != nil {
+				utils.Error(w, "JWT error", err, http.StatusUnauthorized)
+				return
+			}
+			json.NewEncoder(w).Encode(token)
+			return
+		}
+	}
+
+	authenticated, _ := services.AuthenticateDatabase(user, credentials.Password)
+	if authenticated == true {
+		token, err := services.GenerateToken(user)
+		if err != nil {
+			utils.Error(w, "JWT error", err, http.StatusUnauthorized)
+			return
+		}
+		json.NewEncoder(w).Encode(token)
+		return
+	}
+	utils.Error(w, "Unauthorized", err, http.StatusUnauthorized)
+}
+
+var Refresh = func(w http.ResponseWriter, r *http.Request) {
+	token, err := services.RefreshToken(r)
+	if err != nil {
+		log.Printf("JWT error: %s", err)
+		utils.Error(w, "Unauthorized", err, http.StatusUnauthorized)
+		return
+	}
+	json.NewEncoder(w).Encode(token)
+}

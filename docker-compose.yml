@@ -19,18 +19,18 @@ services:
     volumes:
       - ./enabled_plugins:/etc/rabbitmq/enabled_plugins
 
-  server:
-    image: sotomski/mastermind-server
-    build: .
-    ports:
-      - 8000:8000
-    environment:
-      AMQP_URL: amqp://guest:guest@rabbit:5672/
-      DB_HOST: postgres
-
-  worker:
-    image: sotomski/mastermind-worker
-    build: ../mastermind-worker
-    environment:
-      AMQP_URL: amqp://guest:guest@rabbit:5672/
-      DB_HOST: postgres
+#  server:
+#    image: sotomski/mastermind-server
+#    build: .
+#    ports:
+#      - 8000:8000
+#    environment:
+#      AMQP_URL: amqp://guest:guest@rabbit:5672/
+#      DB_HOST: postgres
+#
+#  worker:
+#    image: sotomski/mastermind-worker
+#    build: ../mastermind-worker
+#    environment:
+#      AMQP_URL: amqp://guest:guest@rabbit:5672/
+#      DB_HOST: postgres

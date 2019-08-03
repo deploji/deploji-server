@@ -3,7 +3,6 @@ package utils
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/sirupsen/logrus"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -21,7 +20,7 @@ func Respond(w http.ResponseWriter, data map[string]interface{}) {
 }
 
 func Error(w http.ResponseWriter, message string,  err error, status int) {
-	logrus.Errorf(fmt.Sprintf("%s: %%s", message), err)
+	log.Printf(fmt.Sprintf("%s: %%s", message), err)
 	http.Error(w, err.Error(), status)
 }
 

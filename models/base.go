@@ -2,47 +2,29 @@ package models
 
 import (
 	"fmt"
+	"github.com/golang-migrate/migrate/v4"
+	"github.com/golang-migrate/migrate/v4/database/postgres"
+	_ "github.com/golang-migrate/migrate/v4/database/postgres"
+	"github.com/golang-migrate/migrate/v4/source/file"
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/mysql"
 	_ "github.com/jinzhu/gorm/dialects/postgres"
-	"github.com/joho/godotenv"
+	"github.com/sotomskir/mastermind-server/settings"
+	"log"
 	"os"
 )
 
 var db *gorm.DB
 
 func init() {
-
-	e := godotenv.Load()
-	if e != nil {
-		fmt.Print(e)
-	}
-
-	username := os.Getenv("DB_USER")
-	password := os.Getenv("DB_PASS")
-	dbName := os.Getenv("DB_NAME")
-	dbHost := os.Getenv("DB_HOST")
-	dbPort := os.Getenv("DB_PORT")
-	dbType := os.Getenv("DB_TYPE")
-
-	var dbUri string
-	if dbType == "mysql" {
-		dbUri = fmt.Sprintf("%s:%s@tcp(%s)/%s?charset=utf8&parseTime=True&loc=Local", username, password, dbHost, dbName)
-	} else if dbType == "postgres" {
-		dbUri = fmt.Sprintf("host=%s port=%s user=%s dbname=%s password=%s sslmode=disable", dbHost, dbPort, username, dbName, password)
-	} else {
-		panic("unsupported database type")
-	}
-
-	fmt.Println(dbUri)
-
-	conn, err := gorm.Open(dbType, dbUri)
+	settings.Load()
+	conn, err := gorm.Open(settings.Database.Type, settings.Database.URI)
 	if err != nil {
 		fmt.Print(err)
 	}
 
 	db = conn
-	db.LogMode(true)
+	db.LogMode(false)
 	db.AutoMigrate(
 		&Project{},
 		&SshKey{},
@@ -52,7 +34,29 @@ func init() {
 		&Repository{},
 		&DeploymentLog{},
 		&Template{},
+		&User{},
+		&Setting{},
+		&SettingGroup{},
 		&Deployment{})
+
+	driver, err := postgres.WithInstance(db.DB(), &postgres.Config{})
+	fsrc, err := (&file.File{}).Open("file://migrations")
+	if err != nil {
+		log.Printf("Cannot open migrations file: %s", err)
+		os.Exit(1)
+	}
+	m, err := migrate.NewWithInstance(
+		"file",
+		fsrc,
+		"postgres",
+		driver)
+	if err != nil {
+		log.Printf("Cannot create migrate instance: %s", err)
+		os.Exit(1)
+	}
+	if err := m.Steps(2); err != nil {
+		log.Printf("Migration error: %s", err)
+	}
 }
 
 func GetDB() *gorm.DB {
