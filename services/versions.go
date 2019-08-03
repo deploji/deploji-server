@@ -14,7 +14,18 @@ var GetVersions = func(appId uint) ([]dto.Version, error) {
 		return nil, errors.New("not found")
 	}
 	var versions []dto.Version
-	if app.Repository.Type == "docker" {
+	if app.Repository.Type == "docker-v1" {
+		url := fmt.Sprintf("%s/v1/repositories/%s/tags", app.Repository.Url, app.RepositoryArtifact)
+		var response []map[string]string
+		err := GetJson(url, &response)
+		if err != nil {
+			return nil, err
+		}
+		for _, item := range response {
+			versions = append(versions, dto.Version{Name:item["name"]})
+		}
+	}
+	if app.Repository.Type == "docker-v2" {
 		url := fmt.Sprintf("%s/v2/%s/tags/list", app.Repository.Url, app.RepositoryArtifact)
 		var response map[string]interface{}
 		err := GetJson(url, &response)
