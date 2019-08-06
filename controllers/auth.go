@@ -21,7 +21,7 @@ var Authenticate = func(w http.ResponseWriter, r *http.Request) {
 	}
 	user := models.GetUserByUsername(credentials.Username)
 	if user == nil || user.IsActive == false {
-		utils.Error(w, "Unauthorized", fmt.Errorf("user not found or inactive"), http.StatusUnauthorized)
+		utils.Error(w, "Unauthorized", fmt.Errorf("user not found or inactive"), http.StatusBadRequest)
 		return
 	}
 
@@ -30,7 +30,7 @@ var Authenticate = func(w http.ResponseWriter, r *http.Request) {
 		if authenticated == true {
 			token, err := services.GenerateToken(user)
 			if err != nil {
-				utils.Error(w, "JWT error", err, http.StatusUnauthorized)
+				utils.Error(w, "JWT error", err, http.StatusBadRequest)
 				return
 			}
 			json.NewEncoder(w).Encode(token)
@@ -42,13 +42,13 @@ var Authenticate = func(w http.ResponseWriter, r *http.Request) {
 	if authenticated == true {
 		token, err := services.GenerateToken(user)
 		if err != nil {
-			utils.Error(w, "JWT error", err, http.StatusUnauthorized)
+			utils.Error(w, "JWT error", err, http.StatusBadRequest)
 			return
 		}
 		json.NewEncoder(w).Encode(token)
 		return
 	}
-	utils.Error(w, "Unauthorized", err, http.StatusUnauthorized)
+	utils.Error(w, "Unauthorized", err, http.StatusBadRequest)
 }
 
 var Refresh = func(w http.ResponseWriter, r *http.Request) {

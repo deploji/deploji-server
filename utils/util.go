@@ -21,7 +21,7 @@ func Respond(w http.ResponseWriter, data map[string]interface{}) {
 
 func Error(w http.ResponseWriter, message string,  err error, status int) {
 	log.Printf(fmt.Sprintf("%s: %%s", message), err)
-	http.Error(w, err.Error(), status)
+	http.Error(w, http.StatusText(status), status)
 }
 
 type Page struct {

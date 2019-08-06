@@ -13,6 +13,19 @@ import (
 	"strconv"
 )
 
+var GetUsers = func(w http.ResponseWriter, r *http.Request) {
+	users := models.GetUsers()
+	if users == nil {
+		utils.Error(w, "Cannot load user", errors.New("not found"), http.StatusNotFound)
+		return
+	}
+	for _, user := range users {
+		user.Password = ""
+	}
+	w.Header().Add("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(users)
+}
+
 var GetUser = func(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id, _ := strconv.ParseUint(vars["id"], 10, 16)
