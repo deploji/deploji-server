@@ -3,6 +3,7 @@ package models
 import (
 	"fmt"
 	"github.com/golang-migrate/migrate/v4"
+	"github.com/golang-migrate/migrate/v4/database"
 	"github.com/golang-migrate/migrate/v4/database/postgres"
 	_ "github.com/golang-migrate/migrate/v4/database/postgres"
 	"github.com/golang-migrate/migrate/v4/source/file"
@@ -39,9 +40,14 @@ func init() {
 		&Deployment{})
 
 	driver, err := postgres.WithInstance(db.DB(), &postgres.Config{})
+	runMigrations(driver)
+}
+
+func runMigrations(driver database.Driver) error {
 	fsrc, err := (&file.File{}).Open("file://migrations")
 	if err != nil {
 		log.Printf("Cannot open migrations file: %s", err)
+		return err
 	}
 	m, err := migrate.NewWithInstance(
 		"file",
@@ -50,10 +56,13 @@ func init() {
 		driver)
 	if err != nil {
 		log.Printf("Cannot create migrate instance: %s", err)
+		return err
 	}
 	if err := m.Steps(2); err != nil {
 		log.Printf("Migration error: %s", err)
+		return err
 	}
+	return nil
 }
 
 func GetDB() *gorm.DB {

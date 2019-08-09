@@ -12,10 +12,10 @@ services:
   rabbit:
     image: rabbitmq:3-management
     ports:
-      - "15672:15672"
-      - "5672:5672"
-      - "61613:61613"
-      - "15674:15674"
+      - 15672
+      - 5672
+      - 61613
+      - 15674
     configs:
       - source: rabbit_config
         target: /etc/rabbitmq/enabled_plugins
@@ -23,7 +23,7 @@ services:
       labels:
         - "traefik.enable=true"
         - "traefik.port=15674"
-        - "traefik.frontend.rule=PathPrefixStrip:/ws/"
+        - "traefik.frontend.rule=PathPrefixStrip:/stomp/"
 
   server:
     image: sotomski/mastermind-server
@@ -55,7 +55,7 @@ services:
     command:
       - "--api"
       - "--entrypoints=Name:http Address::80"
-      - "--defaultentrypoints=http"
+      - "--defaultentrypoints=http,ws"
       - "--docker"
       - "--docker.swarmMode"
       - "--docker.domain=lvh.me"

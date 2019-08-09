@@ -1,7 +1,9 @@
 FROM golang as builder
 WORKDIR /go/src/github.com/sotomskir/mastermind-server
+ENV GO111MODULE=on
+COPY go.* ./
+RUN go mod download
 COPY . .
-RUN go get -d -v ./...
 RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o /go/bin/go-mux .
 
 FROM alpine:latest
