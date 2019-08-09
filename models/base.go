@@ -11,7 +11,6 @@ import (
 	_ "github.com/jinzhu/gorm/dialects/postgres"
 	"github.com/sotomskir/mastermind-server/settings"
 	"log"
-	"os"
 )
 
 var db *gorm.DB
@@ -43,7 +42,6 @@ func init() {
 	fsrc, err := (&file.File{}).Open("file://migrations")
 	if err != nil {
 		log.Printf("Cannot open migrations file: %s", err)
-		os.Exit(1)
 	}
 	m, err := migrate.NewWithInstance(
 		"file",
@@ -52,7 +50,6 @@ func init() {
 		driver)
 	if err != nil {
 		log.Printf("Cannot create migrate instance: %s", err)
-		os.Exit(1)
 	}
 	if err := m.Steps(2); err != nil {
 		log.Printf("Migration error: %s", err)
