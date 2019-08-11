@@ -5,11 +5,21 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/sotomskir/mastermind-server/controllers"
 	"github.com/sotomskir/mastermind-server/services"
+	"github.com/sotomskir/mastermind-server/services/amqpService"
 	"github.com/sotomskir/mastermind-server/settings"
 	"github.com/urfave/negroni"
+	"golang.org/x/net/context"
+	"os"
 )
 
 func main() {
+	ctx, done := context.WithCancel(context.Background())
+
+	go func() {
+		amqpService.Publish(amqpService.Redial(ctx, os.Getenv("AMQP_URL")), amqpService.Jobs, "jobs")
+		done()
+	}()
+
 	openRouter := mux.NewRouter()
 	authRouter := mux.NewRouter()
 

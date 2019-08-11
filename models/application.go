@@ -57,7 +57,9 @@ func SaveApplication(application *Application) error {
 			UpdateColumn("deleted_at", nil).Error; err != nil {
 			return err
 		}
-		if err := GetDB().Omit("created_at").Save(application).Error; err != nil {
+		if err := GetDB().
+			Set("gorm:association_autoupdate", true).
+			Omit("created_at").Save(application).Error; err != nil {
 			return err
 		}
 		var inventoryIds []uint

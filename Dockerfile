@@ -11,6 +11,7 @@ RUN apk --no-cache add ca-certificates
 WORKDIR /root/
 COPY --from=builder /go/bin/go-mux .
 COPY .env .
-COPY /migrations ./migrations
+COPY /migrations /root/migrations
+VOLUME /root/storage
 EXPOSE 8080
 CMD ["./go-mux"]

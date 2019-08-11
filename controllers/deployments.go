@@ -51,7 +51,7 @@ var SaveDeployments = func(w http.ResponseWriter, r *http.Request) {
 		utils.Error(w, "Cannot save deployment", err, http.StatusInternalServerError)
 		return
 	}
-	err = amqpService.Send(deployment)
+	err = amqpService.SendDeployment(deployment)
 	if nil != err {
 		utils.Error(w, "Cannot send deployment", err, http.StatusInternalServerError)
 		return
