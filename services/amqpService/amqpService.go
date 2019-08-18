@@ -3,7 +3,6 @@ package amqpService
 import (
 	"encoding/json"
 	"github.com/sotomskir/mastermind-server/dto"
-	"github.com/sotomskir/mastermind-server/models"
 	"github.com/streadway/amqp"
 	"golang.org/x/net/context"
 	"log"
@@ -25,13 +24,13 @@ func (s session) Close() error {
 	return s.Connection.Close()
 }
 
-func SendDeployment(deployment models.Deployment) error {
+func SendJob(jobId uint, jobType dto.JobType) error {
 	body, err := json.Marshal(dto.JobMessage{
-		Type: dto.Deployment,
-		ID:   deployment.ID,
+		Type: jobType,
+		ID:   jobId,
 	})
 	if err != nil {
-		log.Printf("Error marshaling deployment: %s", err)
+		log.Printf("Error marshaling job: %s", err)
 		return err
 	}
 	Jobs <- body

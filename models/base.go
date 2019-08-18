@@ -24,13 +24,15 @@ func init() {
 	}
 
 	db = conn
-	db.LogMode(false)
+	db.LogMode(true)
 	db.AutoMigrate(
 		&Project{},
 		&SshKey{},
 		&Application{},
 		&ApplicationInventory{},
 		&Inventory{},
+		&Job{},
+		&JobLog{},
 		&Repository{},
 		&DeploymentLog{},
 		&Template{},

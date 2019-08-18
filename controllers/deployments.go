@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/gorilla/mux"
+	"github.com/sotomskir/mastermind-server/dto"
 	"github.com/sotomskir/mastermind-server/models"
 	"github.com/sotomskir/mastermind-server/services/amqpService"
 	"github.com/sotomskir/mastermind-server/utils"
@@ -51,7 +52,7 @@ var SaveDeployments = func(w http.ResponseWriter, r *http.Request) {
 		utils.Error(w, "Cannot save deployment", err, http.StatusInternalServerError)
 		return
 	}
-	err = amqpService.SendDeployment(deployment)
+	err = amqpService.SendJob(deployment.ID, dto.Deployment)
 	if nil != err {
 		utils.Error(w, "Cannot send deployment", err, http.StatusInternalServerError)
 		return
