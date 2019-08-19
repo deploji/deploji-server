@@ -8,20 +8,64 @@ import (
 	"time"
 )
 
+type JobType string
+
+const (
+	TypeDeployment JobType = "Deployment"
+	TypeJob        JobType = "Job"
+	TypeSCMPull    JobType = "SCMPull"
+)
+
 type Job struct {
 	gorm.Model
-	StartedAt   time.Time
-	FinishedAt  time.Time
-	Project     Application `gorm:"association_autoupdate:false"`
-	ProjectID   uint
-	Inventory   Inventory `gorm:"association_autoupdate:false"`
-	InventoryID uint
-	Status      Status
+	Type          JobType
+	StartedAt     time.Time
+	FinishedAt    time.Time
+	Application   Application
+	ApplicationID uint
+	Project       Project
+	ProjectID     uint
+	Inventory     Inventory
+	InventoryID   uint
+	Status        Status
+	Version       string
+}
+
+func GetLatestDeployments() []*Job {
+	var jobs []*Job
+	sql := `
+select * from jobs where id in (
+	select max(id)
+	from jobs
+	where status = 2 and type = 'Deployment'
+	group by application_id, inventory_id
+)`
+	err := GetDB().Raw(sql).Scan(&jobs).Error
+	if err != nil {
+		return nil
+	}
+	return jobs
+}
+
+func GetLatestSCMPulls() []*Job {
+	var jobs []*Job
+	sql := `
+select * from jobs where id in (
+	select max(id)
+	from jobs
+	where type = 'SCMPull'
+	group by project_id
+)`
+	err := GetDB().Raw(sql).Scan(&jobs).Error
+	if err != nil {
+		return nil
+	}
+	return jobs
 }
 
 func GetJobs(page utils.Page, filters []utils.Filter) ([]*Job, *pagination.Paginator) {
 	var jobs []*Job
-	db := GetDB().Preload("Application").Preload("Inventory")
+	db := GetDB().Preload("Application").Preload("Inventory").Preload("Project")
 	for _, filter := range filters {
 		db = db.Where(fmt.Sprintf("%s=?", filter.Key), filter.Value)
 	}
@@ -36,7 +80,10 @@ func GetJobs(page utils.Page, filters []utils.Filter) ([]*Job, *pagination.Pagin
 
 func GetJob(id uint) *Job {
 	var job Job
-	err := GetDB().First(&job, id).Error
+	err := GetDB().
+		Preload("Application.Project").
+		Preload("Inventory").
+		First(&job, id).Error
 	if err != nil {
 		return nil
 	}

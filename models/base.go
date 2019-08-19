@@ -34,12 +34,10 @@ func init() {
 		&Job{},
 		&JobLog{},
 		&Repository{},
-		&DeploymentLog{},
 		&Template{},
 		&User{},
 		&Setting{},
-		&SettingGroup{},
-		&Deployment{})
+		&SettingGroup{})
 
 	driver, err := postgres.WithInstance(db.DB(), &postgres.Config{})
 	runMigrations(driver)

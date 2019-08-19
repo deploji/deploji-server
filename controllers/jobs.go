@@ -5,7 +5,6 @@ import (
 	"errors"
 	"fmt"
 	"github.com/gorilla/mux"
-	"github.com/sotomskir/mastermind-server/dto"
 	"github.com/sotomskir/mastermind-server/models"
 	"github.com/sotomskir/mastermind-server/services/amqpService"
 	"github.com/sotomskir/mastermind-server/utils"
@@ -20,6 +19,12 @@ var GetJobs = func(w http.ResponseWriter, r *http.Request) {
 	w.Header().Add("Content-Type", "application/json")
 	w.Header().Add("X-Total-Count", fmt.Sprintf("%d", paginator.TotalRecord))
 	json.NewEncoder(w).Encode(jobs)
+}
+
+var GetLatestDeployments = func(w http.ResponseWriter, r *http.Request) {
+	deployments := models.GetLatestDeployments()
+	w.Header().Add("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(deployments)
 }
 
 var GetJob = func(w http.ResponseWriter, r *http.Request) {
@@ -46,7 +51,7 @@ var SaveJobs = func(w http.ResponseWriter, r *http.Request) {
 		utils.Error(w, "Cannot save job", err, http.StatusInternalServerError)
 		return
 	}
-	err = amqpService.SendJob(job.ID, dto.Job)
+	err = amqpService.SendJob(job.ID, job.Type)
 	if nil != err {
 		utils.Error(w, "Cannot send job", err, http.StatusInternalServerError)
 		return

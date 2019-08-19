@@ -6,28 +6,20 @@ import (
 	"log"
 )
 
-type JobType string
-
-const (
-	Deployment JobType = "Deployment"
-	Job        JobType = "Job"
-	SCMPull    JobType = "SCMPull"
-)
-
 type JobMessage struct {
-	Type JobType
+	Type models.JobType
 	ID   uint
 }
 
 type Message []byte
 
 type StatusMessage struct {
-	Type   JobType
+	Type   models.JobType
 	ID     uint
 	Status models.Status
 }
 
-func NewStatusMessage(jobType JobType, id uint, status models.Status) Message {
+func NewStatusMessage(jobType models.JobType, id uint, status models.Status) Message {
 	message := StatusMessage{
 		Type:   jobType,
 		ID:     id,

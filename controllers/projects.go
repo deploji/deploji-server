@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"errors"
 	"github.com/gorilla/mux"
-	"github.com/sotomskir/mastermind-server/dto"
 	"github.com/sotomskir/mastermind-server/models"
 	"github.com/sotomskir/mastermind-server/services"
 	"github.com/sotomskir/mastermind-server/services/amqpService"
@@ -18,6 +17,12 @@ var GetProjects = func(w http.ResponseWriter, r *http.Request) {
 	projects := models.GetProjects()
 	w.Header().Add("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(projects)
+}
+
+var GetProjectsSyncStatus = func(w http.ResponseWriter, r *http.Request) {
+	jobs := models.GetLatestSCMPulls()
+	w.Header().Add("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(jobs)
 }
 
 var GetProject = func(w http.ResponseWriter, r *http.Request) {
@@ -80,12 +85,12 @@ var DeleteProject = func(w http.ResponseWriter, r *http.Request) {
 var SynchronizeProject = func(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id, _ := strconv.ParseUint(vars["id"], 10, 16)
-	job := models.Job{ProjectID: uint(id)}
+	job := models.Job{ProjectID: uint(id), Type: models.TypeSCMPull}
 	if err := models.SaveJob(&job); err != nil {
 		utils.Error(w, "Cannot save job", err, http.StatusInternalServerError)
 		return
 	}
-	if err := amqpService.SendJob(job.ID, dto.SCMPull); err != nil {
+	if err := amqpService.SendJob(job.ID, models.TypeSCMPull); err != nil {
 		utils.Error(w, "Cannot send job", err, http.StatusInternalServerError)
 		return
 	}
