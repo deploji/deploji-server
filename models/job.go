@@ -18,17 +18,19 @@ const (
 
 type Job struct {
 	gorm.Model
-	Type          JobType
-	StartedAt     time.Time
-	FinishedAt    time.Time
-	Application   Application
-	ApplicationID uint
-	Project       Project
-	ProjectID     uint
-	Inventory     Inventory
-	InventoryID   uint
-	Status        Status
-	Version       string
+	Type           JobType
+	StartedAt      time.Time
+	FinishedAt     time.Time
+	Application    Application
+	ApplicationID  uint
+	Playbook       string `gorm:"type:text"`
+	Project        Project
+	ProjectID      uint
+	Inventory      Inventory
+	InventoryID    uint
+	Status         Status
+	Version        string `gorm:"type:text"`
+	ExtraVariables string `gorm:"type:text"`
 }
 
 func GetLatestDeployments() []*Job {
@@ -82,6 +84,7 @@ func GetJob(id uint) *Job {
 	var job Job
 	err := GetDB().
 		Preload("Application.Project").
+		Preload("Project").
 		Preload("Inventory").
 		First(&job, id).Error
 	if err != nil {
