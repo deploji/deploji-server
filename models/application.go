@@ -57,13 +57,20 @@ func SaveApplication(application *Application) error {
 			UpdateColumn("deleted_at", nil).Error; err != nil {
 			return err
 		}
-		if err := GetDB().Omit("created_at").Save(application).Error; err != nil {
-			return err
-		}
+
 		var inventoryIds []uint
 		for _, inventory := range application.Inventories {
+			if err := GetDB().Save(&inventory).Error; err != nil {
+				return err
+			}
 			inventoryIds = append(inventoryIds, inventory.InventoryID)
 		}
+
+		if err := GetDB().
+			Omit("created_at").Save(application).Error; err != nil {
+			return err
+		}
+
 		if err := GetDB().
 			Table("application_inventories").
 			Where("application_id=?", application.ID).

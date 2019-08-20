@@ -3,11 +3,8 @@ package utils
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/sirupsen/logrus"
-	"io/ioutil"
 	"log"
 	"net/http"
-	"os"
 	"strconv"
 )
 
@@ -21,8 +18,8 @@ func Respond(w http.ResponseWriter, data map[string]interface{}) {
 }
 
 func Error(w http.ResponseWriter, message string,  err error, status int) {
-	logrus.Errorf(fmt.Sprintf("%s: %%s", message), err)
-	http.Error(w, err.Error(), status)
+	log.Printf(fmt.Sprintf("%s: %%s", message), err)
+	http.Error(w, http.StatusText(status), status)
 }
 
 type Page struct {
@@ -60,16 +57,4 @@ func NewFilters(r *http.Request, keys []string) []Filter {
 		}
 	}
 	return filters
-}
-
-func WriteKey(id uint, content string) error {
-	if err := os.MkdirAll("storage/keys", os.ModePerm); err != nil {
-		log.Printf("Error creating directory: %s", err)
-		return err
-	}
-	if err := ioutil.WriteFile(fmt.Sprintf("storage/keys/%d", id), []byte(content), 0644); err != nil {
-		log.Printf("Error saving key file: %s", err)
-		return err
-	}
-	return nil
 }

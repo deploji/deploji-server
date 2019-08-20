@@ -34,3 +34,9 @@ services:
     environment:
       AMQP_URL: amqp://guest:guest@rabbit:5672/
       DB_HOST: postgres
+
+  web:
+    image: sotomski/mastermind
+    build: ../mastermind
+    ports:
+      - 8080:8080

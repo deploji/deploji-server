@@ -1,5 +1,7 @@
 package models
 
+import "time"
+
 type ApplicationInventory struct {
 	IsActive        bool
 	Application     Application
@@ -7,6 +9,7 @@ type ApplicationInventory struct {
 	Inventory       Inventory
 	InventoryID     uint   `gorm:"primary_key"`
 	ApplicationUrls string `gorm:"type:text"`
+	DeletedAt       time.Time
 }
 
 func GetApplicationInventories() ([]*ApplicationInventory, error) {

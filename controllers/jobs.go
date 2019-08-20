@@ -12,13 +12,13 @@ import (
 	"strconv"
 )
 
-var GetDeployments = func(w http.ResponseWriter, r *http.Request) {
+var GetJobs = func(w http.ResponseWriter, r *http.Request) {
 	page := utils.NewPage(r)
 	filters := utils.NewFilters(r, []string{"application_id", "inventory_id"})
-	deployments, paginator := models.GetDeployments(page, filters)
+	jobs, paginator := models.GetJobs(page, filters)
 	w.Header().Add("Content-Type", "application/json")
 	w.Header().Add("X-Total-Count", fmt.Sprintf("%d", paginator.TotalRecord))
-	json.NewEncoder(w).Encode(deployments)
+	json.NewEncoder(w).Encode(jobs)
 }
 
 var GetLatestDeployments = func(w http.ResponseWriter, r *http.Request) {
@@ -27,44 +27,44 @@ var GetLatestDeployments = func(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(deployments)
 }
 
-var GetDeployment = func(w http.ResponseWriter, r *http.Request) {
+var GetJob = func(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id, _ := strconv.ParseUint(vars["id"], 10, 16)
-	deployment := models.GetDeployment(uint(id))
-	if deployment == nil {
-		utils.Error(w, "Cannot load deployment", errors.New("not found"), http.StatusNotFound)
+	job := models.GetJob(uint(id))
+	if job == nil {
+		utils.Error(w, "Cannot load job", errors.New("not found"), http.StatusNotFound)
 		return
 	}
 	w.Header().Add("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(deployment)
+	json.NewEncoder(w).Encode(job)
 }
 
-var SaveDeployments = func(w http.ResponseWriter, r *http.Request) {
-	var deployment models.Deployment
-	err := json.NewDecoder(r.Body).Decode(&deployment)
+var SaveJobs = func(w http.ResponseWriter, r *http.Request) {
+	var job models.Job
+	err := json.NewDecoder(r.Body).Decode(&job)
 	if nil != err {
-		utils.Error(w, "Cannot decode deployment", err, http.StatusInternalServerError)
+		utils.Error(w, "Cannot decode job", err, http.StatusInternalServerError)
 		return
 	}
-	err = models.SaveDeployment(&deployment)
+	err = models.SaveJob(&job)
 	if err != nil {
-		utils.Error(w, "Cannot save deployment", err, http.StatusInternalServerError)
+		utils.Error(w, "Cannot save job", err, http.StatusInternalServerError)
 		return
 	}
-	err = amqpService.Send(deployment)
+	err = amqpService.SendJob(job.ID, job.Type)
 	if nil != err {
-		utils.Error(w, "Cannot send deployment", err, http.StatusInternalServerError)
+		utils.Error(w, "Cannot send job", err, http.StatusInternalServerError)
 		return
 	}
 
 	w.Header().Add("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(deployment)
+	json.NewEncoder(w).Encode(job)
 }
 
-var GetDeploymentLogs = func(w http.ResponseWriter, r *http.Request) {
+var GetJobLogs = func(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id, _ := strconv.ParseUint(vars["id"], 10, 16)
-	deploymentLogs := models.GetDeploymentLogs(uint(id))
+	jobLogs := models.GetJobLogs(uint(id))
 	w.Header().Add("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(deploymentLogs)
+	json.NewEncoder(w).Encode(jobLogs)
 }
