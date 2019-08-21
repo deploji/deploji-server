@@ -8,6 +8,8 @@ services:
       POSTGRES_PASSWORD: mastermind
     ports:
       - 5432
+    volumes:
+      - dbdata:/var/lib/postgresql/data
 
   rabbit:
     image: rabbitmq:3-management
@@ -22,6 +24,7 @@ services:
     deploy:
       labels:
         - "traefik.enable=true"
+        - "traefik.network=default"
         - "traefik.port=15674"
         - "traefik.frontend.rule=PathPrefixStrip:/stomp/"
 
@@ -35,6 +38,8 @@ services:
         - "traefik.enable=true"
         - "traefik.port=8000"
         - "traefik.frontend.rule=PathPrefixStrip:/api/"
+    volumes:
+      - storage:/root/storage
 
   web:
     image: sotomski/mastermind
@@ -49,13 +54,15 @@ services:
     environment:
       AMQP_URL: amqp://guest:guest@rabbit:5672/
       DB_HOST: postgres
+    volumes:
+      - storage:/root/storage
 
   traefik:
     image: traefik:1.7
     command:
       - "--api"
       - "--entrypoints=Name:http Address::80"
-      - "--defaultentrypoints=http,ws"
+      - "--defaultentrypoints=http"
       - "--docker"
       - "--docker.swarmMode"
       - "--docker.domain=lvh.me"
@@ -69,3 +76,7 @@ services:
 configs:
   rabbit_config:
     file: enabled_plugins
+
+volumes:
+  dbdata:
+  storage:

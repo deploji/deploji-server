@@ -34,6 +34,9 @@ services:
     environment:
       AMQP_URL: amqp://guest:guest@rabbit:5672/
       DB_HOST: postgres
+      SSH_AUTH_SOCK: $SSH_AUTH_SOCK
+    volumes:
+      - $SSH_AUTH_SOCK:$SSH_AUTH_SOCK
 
   web:
     image: sotomski/mastermind
