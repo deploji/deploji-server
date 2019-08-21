@@ -12,7 +12,6 @@ import (
 	"gopkg.in/ldap.v3"
 	"log"
 	"net/http"
-	"os"
 	"strings"
 	"time"
 )
@@ -29,14 +28,14 @@ func AuthenticateDatabase(user *models.User, password string) (bool, error) {
 }
 
 func AuthenticateLDAP(user *models.User, password string) (bool, error) {
-	var ldapServer = os.Getenv(models.GetSettingValue("ldap", "host", "localhost"))
+	ldapServer := models.GetSettingValue("LDAP", "host", "localhost")
 	l, err := ldap.Dial("tcp", fmt.Sprintf("%s:%d", ldapServer, ldapPort))
 	if err != nil {
 		log.Printf("Dial error: %s", err)
 		return false, err
 	}
 	log.Printf("connection successfull: %v", l)
-	domain := os.Getenv(models.GetSettingValue("ldap", "domain", "localhost"))
+	domain := models.GetSettingValue("LDAP", "domain", "localhost")
 	br, err := l.SimpleBind(ldap.NewSimpleBindRequest(fmt.Sprintf("%s\\%s", domain, user.Username), password, []ldap.Control{}))
 	if err != nil {
 		log.Printf("Bind error: %s", err)

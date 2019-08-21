@@ -25,7 +25,8 @@ var Authenticate = func(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if models.GetSettingBoolValue("ldap", "enabled", false) {
+	if models.GetSettingBoolValue("LDAP", "enabled", false) {
+		log.Println("LDAP enabled")
 		authenticated, _ := services.AuthenticateLDAP(user, credentials.Password)
 		if authenticated == true {
 			token, err := services.GenerateToken(user)

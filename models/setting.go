@@ -6,6 +6,7 @@ import (
 
 type Setting struct {
 	gorm.Model
+	SettingGroup   SettingGroup
 	SettingGroupID uint
 	Key            string `gorm:"type:text"`
 	Value          string `gorm:"type:text"`
@@ -15,19 +16,33 @@ type Setting struct {
 	Description    string `gorm:"type:text"`
 }
 
-func GetSettingValue(group string, key string, defaultValue string) string {
+func GetSettingValue(groupName string, key string, defaultValue string) string {
+	var group SettingGroup
 	var setting Setting
-	err := GetDB().Where("group=?", group).Where("key=?", key).Find(&setting).Error
-	if err != nil || setting.Value == "" {
+	if err := GetDB().
+		Where(SettingGroup{Name: groupName}).
+		Find(&group).Error; err != nil {
+			return defaultValue
+	}
+	if err := GetDB().
+		Where(Setting{Key: key, SettingGroupID: group.ID}).
+		Find(&setting).Error; err != nil {
 		return defaultValue
 	}
 	return setting.Value
 }
 
-func GetSettingBoolValue(group string, key string, defaultValue bool) bool {
+func GetSettingBoolValue(groupName string, key string, defaultValue bool) bool {
+	var group SettingGroup
 	var setting Setting
-	err := GetDB().Where("group=?", group).Where("key=?", key).Find(&setting).Error
-	if err != nil || setting.Value == "" {
+	if err := GetDB().
+		Where(SettingGroup{Name: groupName}).
+		Find(&group).Error; err != nil {
+		return defaultValue
+	}
+	if err := GetDB().
+		Where(Setting{Key: key, SettingGroupID: group.ID}).
+		Find(&setting).Error; err != nil {
 		return defaultValue
 	}
 	return setting.BoolValue
