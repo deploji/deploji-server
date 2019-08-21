@@ -56,14 +56,12 @@ func Redial(ctx context.Context, url string) chan chan session {
 
 			conn, err := amqp.Dial(url)
 			if err != nil {
-				log.Printf("cannot (re)dial: %v: %q", err, url)
-				return
+				log.Fatalf("cannot (re)dial: %v: %q", err, url)
 			}
 
 			ch, err := conn.Channel()
 			if err != nil {
-				log.Printf("cannot create channel: %v", err)
-				return
+				log.Fatalf("cannot create channel: %v", err)
 			}
 
 			select {

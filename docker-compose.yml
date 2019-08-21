@@ -27,6 +27,8 @@ services:
     environment:
       AMQP_URL: amqp://guest:guest@rabbit:5672/
       DB_HOST: postgres
+    volumes:
+      - ./storage:/root/storage
 
   worker:
     image: sotomski/mastermind-worker
@@ -34,9 +36,8 @@ services:
     environment:
       AMQP_URL: amqp://guest:guest@rabbit:5672/
       DB_HOST: postgres
-      SSH_AUTH_SOCK: $SSH_AUTH_SOCK
     volumes:
-      - $SSH_AUTH_SOCK:$SSH_AUTH_SOCK
+      - ./storage:/root/storage
 
   web:
     image: sotomski/mastermind
