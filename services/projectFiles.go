@@ -20,7 +20,7 @@ var GetProjectFiles = func(projectId uint) ([]models.ProjectFile, error) {
 			return filepath.SkipDir
 		}
 		if !info.IsDir() {
-			projectFiles = append(projectFiles, models.ProjectFile{Path:path[len(root)-1:]})
+			projectFiles = append(projectFiles, models.ProjectFile(path[len(root)-1:]))
 		}
 		return nil
 	})

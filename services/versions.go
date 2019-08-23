@@ -6,6 +6,7 @@ import (
 	"github.com/sotomskir/mastermind-server/dto"
 	"github.com/sotomskir/mastermind-server/models"
 	"log"
+	"sort"
 )
 
 var GetVersions = func(appId uint) ([]dto.Version, error) {
@@ -38,5 +39,6 @@ var GetVersions = func(appId uint) ([]dto.Version, error) {
 			versions = append(versions, dto.Version{Name:item.(string)})
 		}
 	}
+	sort.Sort(dto.ByName(versions))
 	return versions, nil
 }
