@@ -18,6 +18,13 @@ services:
       - "15674:15674"
     volumes:
       - ./enabled_plugins:/etc/rabbitmq/enabled_plugins
+    labels:
+      - "traefik.enable=true"
+      - "traefik.network=default"
+      - "traefik.ws.port=15674"
+      - "traefik.ws.frontend.rule=PathPrefixStrip:/stomp/"
+      - "traefik.web.port=15672"
+      - "traefik.web.frontend.rule=PathPrefixStrip:/rabbit/"
 
   server:
     image: sotomski/mastermind-server
@@ -29,6 +36,10 @@ services:
       DB_HOST: postgres
     volumes:
       - ./storage:/root/storage
+    labels:
+      - "traefik.enable=true"
+      - "traefik.port=8000"
+      - "traefik.frontend.rule=PathPrefixStrip:/api/"
 
   worker:
     image: sotomski/mastermind-worker
@@ -42,5 +53,22 @@ services:
   web:
     image: sotomski/mastermind
     build: ../mastermind
+    labels:
+      - "traefik.enable=true"
+      - "traefik.port=80"
+      - "traefik.frontend.rule=PathPrefixStrip:/"
+
+  traefik:
+    image: traefik:1.7
+    command:
+      - "--api"
+      - "--entrypoints=Name:http Address::80"
+      - "--defaultentrypoints=http"
+      - "--docker"
+      - "--docker.domain=lvh.me"
+      - "--docker.watch"
     ports:
-      - 8080:8080
+      - "80:80"
+      - "8080:8080"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock

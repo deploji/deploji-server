@@ -25,8 +25,10 @@ services:
       labels:
         - "traefik.enable=true"
         - "traefik.network=default"
-        - "traefik.port=15674"
-        - "traefik.frontend.rule=PathPrefixStrip:/stomp/"
+        - "traefik.ws.port=15674"
+        - "traefik.ws.frontend.rule=PathPrefixStrip:/stomp/"
+        - "traefik.web.port=15672"
+        - "traefik.web.frontend.rule=PathPrefixStrip:/rabbit/"
 
   server:
     image: sotomski/mastermind-server
