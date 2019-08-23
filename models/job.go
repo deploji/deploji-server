@@ -85,7 +85,7 @@ func GetJob(id uint) *Job {
 	err := GetDB().
 		Preload("Application.Project").
 		Preload("Project").
-		Preload("Inventory").
+		Preload("Inventory.Key").
 		First(&job, id).Error
 	if err != nil {
 		return nil
