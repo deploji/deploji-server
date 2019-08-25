@@ -12,6 +12,7 @@ import (
 	_ "github.com/jinzhu/gorm/dialects/postgres"
 	"github.com/sotomskir/mastermind-server/settings"
 	"log"
+	"os"
 )
 
 var db *gorm.DB
@@ -24,7 +25,7 @@ func init() {
 	}
 
 	db = conn
-	db.LogMode(true)
+	db.LogMode(os.Getenv("GORM_LOG_MODE") == "true")
 	db.AutoMigrate(
 		&Project{},
 		&SshKey{},
