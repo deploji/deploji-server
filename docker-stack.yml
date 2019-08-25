@@ -13,18 +13,12 @@ services:
 
   rabbit:
     image: rabbitmq:3-management
-    ports:
-      - 15672
-      - 5672
-      - 61613
-      - 15674
     configs:
       - source: rabbit_config
         target: /etc/rabbitmq/enabled_plugins
     deploy:
       labels:
         - "traefik.enable=true"
-        - "traefik.network=default"
         - "traefik.ws.port=15674"
         - "traefik.ws.frontend.rule=PathPrefixStrip:/stomp/"
         - "traefik.web.port=15672"

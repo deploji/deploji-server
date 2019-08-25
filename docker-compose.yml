@@ -20,7 +20,7 @@ services:
       - ./enabled_plugins:/etc/rabbitmq/enabled_plugins
     labels:
       - "traefik.enable=true"
-      - "traefik.network=default"
+      - "traefik.docker.network=default"
       - "traefik.ws.port=15674"
       - "traefik.ws.frontend.rule=PathPrefixStrip:/stomp/"
       - "traefik.web.port=15672"
