@@ -24,7 +24,7 @@ func init() {
 	}
 
 	db = conn
-	db.LogMode(false)
+	db.LogMode(true)
 	db.AutoMigrate(
 		&Project{},
 		&SshKey{},

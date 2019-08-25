@@ -7,6 +7,7 @@ COPY . .
 RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o /go/bin/mastermind-server .
 
 FROM alpine:latest
+ENV STORAGE_DIR=storage/repositories
 RUN apk --no-cache add ca-certificates
 WORKDIR /root/
 COPY --from=builder /go/bin/mastermind-server .

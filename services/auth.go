@@ -20,7 +20,7 @@ var ldapPort = uint16(389)
 var ldapTLSPort = uint16(636)
 
 func AuthenticateDatabase(user *models.User, password string) (bool, error) {
-	if !CheckPasswordHash(password, user.Password) {
+	if !CheckPasswordHash(password, string(user.Password)) {
 		log.Printf("Pasword not match for user: %s", user.Username)
 		return false, fmt.Errorf("bad password")
 	}
@@ -45,9 +45,9 @@ func AuthenticateLDAP(user *models.User, password string) (bool, error) {
 	return true, nil
 }
 
-func HashPassword(password string) (string, error) {
+func HashPassword(password models.Password) (models.Password, error) {
 	bytes, err := bcrypt.GenerateFromPassword([]byte(password), 14)
-	return string(bytes), err
+	return models.Password(bytes), err
 }
 
 func CheckPasswordHash(password, hash string) bool {

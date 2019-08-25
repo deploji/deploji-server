@@ -5,14 +5,21 @@ import (
 	"log"
 )
 
+type Password string
+
 type User struct {
 	gorm.Model
 	Name string
 	Surname string
 	Username string `gorm:"unique_index"`
 	Email string
-	Password string
+	Password Password
 	IsActive bool
+}
+
+// Marshaler ignores the field value completely.
+func (Password) MarshalJSON() ([]byte, error) {
+	return []byte(`""`), nil
 }
 
 func GetUsers() []*User {

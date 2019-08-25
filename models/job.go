@@ -28,6 +28,8 @@ type Job struct {
 	ProjectID      uint
 	Inventory      Inventory
 	InventoryID    uint
+	Key            SshKey
+	KeyID          uint
 	Status         Status
 	Version        string `gorm:"type:text"`
 	ExtraVariables string `gorm:"type:text"`
@@ -85,7 +87,8 @@ func GetJob(id uint) *Job {
 	err := GetDB().
 		Preload("Application.Project").
 		Preload("Project").
-		Preload("Inventory.Key").
+		Preload("Inventory").
+		Preload("Key").
 		First(&job, id).Error
 	if err != nil {
 		return nil

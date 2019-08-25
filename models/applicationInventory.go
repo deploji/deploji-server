@@ -9,6 +9,8 @@ type ApplicationInventory struct {
 	Inventory       Inventory
 	InventoryID     uint   `gorm:"primary_key"`
 	ApplicationUrls string `gorm:"type:text"`
+	Key             SshKey
+	KeyID           uint
 	DeletedAt       time.Time
 }
 
