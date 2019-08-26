@@ -1,17 +1,19 @@
 package models
 
-import "time"
+import (
+	"github.com/jinzhu/gorm"
+)
 
 type ApplicationInventory struct {
+	gorm.Model
 	IsActive        bool
 	Application     Application
-	ApplicationID   uint `gorm:"primary_key"`
+	ApplicationID   uint `gorm:"unique_index:unique_application_inventory"`
 	Inventory       Inventory
-	InventoryID     uint   `gorm:"primary_key"`
+	InventoryID     uint   `gorm:"unique_index:unique_application_inventory"`
 	ApplicationUrls string `gorm:"type:text"`
 	Key             SshKey
 	KeyID           uint
-	DeletedAt       time.Time
 }
 
 func GetApplicationInventories() ([]*ApplicationInventory, error) {
