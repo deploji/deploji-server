@@ -1,7 +1,8 @@
 package dto
 
 type Version struct {
-	Name string
+	Name    string
+	SortKey string `json:"-"`
 }
 
 type ByName []Version
@@ -13,5 +14,5 @@ func (s ByName) Swap(i, j int) {
 	s[i], s[j] = s[j], s[i]
 }
 func (s ByName) Less(i, j int) bool {
-	return s[i].Name > s[j].Name
+	return s[i].SortKey > s[j].SortKey
 }
