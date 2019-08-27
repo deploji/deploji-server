@@ -15,6 +15,7 @@ type Application struct {
 	RepositoryArtifact string
 	Inventories        []ApplicationInventory
 	AnsiblePlaybook    string `gorm:"type:text"`
+	RepositoryGroup    string `gorm:"type:text"`
 }
 
 func GetApplications() ([]*Application, error) {

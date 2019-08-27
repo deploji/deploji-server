@@ -22,7 +22,7 @@ var GetVersions = func(appId uint) ([]dto.Version, error) {
 			return nil, err
 		}
 		for _, item := range response {
-			versions = append(versions, dto.Version{Name:item["name"]})
+			versions = append(versions, dto.Version{Name: item["name"]})
 		}
 	}
 	if app.Repository.Type == "docker-v2" {
@@ -35,7 +35,33 @@ var GetVersions = func(appId uint) ([]dto.Version, error) {
 		}
 
 		for _, item := range response["tags"].([]interface{}) {
-			versions = append(versions, dto.Version{Name:item.(string)})
+			versions = append(versions, dto.Version{Name: item.(string)})
+		}
+	}
+	if app.Repository.Type == "nexus-v3" {
+		continuationToken := ""
+		hasMore := true
+		for hasMore {
+			url := fmt.Sprintf(
+				"%s/service/rest/v1/search?repository=local&group=%s&name=%s%s",
+				app.Repository.Url,
+				app.RepositoryGroup,
+				app.RepositoryArtifact,
+				continuationToken)
+			var response map[string]interface{}
+			err := GetJson(url, &response)
+			if err != nil {
+				log.Printf("GetJson error: %s", err)
+				return nil, err
+			}
+			hasMore = response["continuationToken"] != nil
+			if hasMore {
+				continuationToken = fmt.Sprintf("&continuationToken=%s", response["continuationToken"].(string))
+			}
+
+			for _, item := range response["items"].([]interface{}) {
+				versions = append(versions, dto.Version{Name: item.(map[string]interface{})["version"].(string)})
+			}
 		}
 	}
 	for i, j := 0, len(versions)-1; i < j; i, j = i+1, j-1 {
