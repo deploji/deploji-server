@@ -8,10 +8,11 @@ type ApplicationInventory struct {
 	gorm.Model
 	IsActive        bool
 	Application     Application
-	ApplicationID   uint `gorm:"unique_index:unique_application_inventory"`
+	ApplicationID   uint
 	Inventory       Inventory
-	InventoryID     uint   `gorm:"unique_index:unique_application_inventory"`
+	InventoryID     uint
 	ApplicationUrls string `gorm:"type:text"`
+	ExtraVariables  string `gorm:"type:text"`
 	Key             SshKey
 	KeyID           uint
 }
