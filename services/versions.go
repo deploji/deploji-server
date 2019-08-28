@@ -54,7 +54,8 @@ var GetVersions = func(appId uint) ([]dto.Version, error) {
 		regex := regexp.MustCompile(`-\d{8}\.\d{6}-\d{1,4}`)
 		for hasMore {
 			url := fmt.Sprintf(
-				"%s/service/rest/v1/search?repository=local&group=%s&name=%s%s",
+				"%s/service/rest/v1/search?repository=%s&group=%s&name=%s%s",
+				app.Repository.NexusName,
 				app.Repository.Url,
 				app.RepositoryGroup,
 				app.RepositoryArtifact,

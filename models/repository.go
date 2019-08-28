@@ -6,11 +6,12 @@ import (
 
 type Repository struct {
 	gorm.Model
-	Name     string `gorm:"type:text"`
-	Type     string `gorm:"type:text"`
-	Url      string `gorm:"type:text"`
-	Username string `gorm:"type:text"`
-	Password string `gorm:"type:text"`
+	Name      string `gorm:"type:text"`
+	Type      string `gorm:"type:text"`
+	Url       string `gorm:"type:text"`
+	Username  string `gorm:"type:text"`
+	Password  string `gorm:"type:text"`
+	NexusName string `gorm:"type:text"`
 }
 
 func GetRepositories() []*Repository {
