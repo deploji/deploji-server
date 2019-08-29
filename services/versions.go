@@ -55,8 +55,8 @@ var GetVersions = func(appId uint) ([]dto.Version, error) {
 		for hasMore {
 			url := fmt.Sprintf(
 				"%s/service/rest/v1/search?repository=%s&group=%s&name=%s%s",
-				app.Repository.NexusName,
 				app.Repository.Url,
+				app.Repository.NexusName,
 				app.RepositoryGroup,
 				app.RepositoryArtifact,
 				continuationToken)
