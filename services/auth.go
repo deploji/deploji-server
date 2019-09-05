@@ -58,6 +58,7 @@ func CheckPasswordHash(password, hash string) bool {
 func GenerateToken(user *models.User) (*dto.JWT, error) {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 		"sub": user.Username,
+		"uid": user.ID,
 		"iat": time.Now().Unix(),
 		"exp": time.Now().Add(settings.Auth.TTL).Unix(),
 		"nbf": time.Now().Unix(),
@@ -84,6 +85,7 @@ func RefreshToken(r *http.Request) (*dto.JWT, error) {
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 		"sub": oldToken.Claims.(jwt.MapClaims)["sub"],
+		"uid": oldToken.Claims.(jwt.MapClaims)["uid"],
 		"iat": oldToken.Claims.(jwt.MapClaims)["iat"],
 		"exp": time.Now().Add(settings.Auth.TTL).Unix(),
 		"nbf": time.Now().Unix(),
@@ -163,4 +165,13 @@ func JwtMiddleware(rw http.ResponseWriter, r *http.Request, next http.HandlerFun
 
 func tokenGetter(r *http.Request) string {
 	return strings.Replace(r.Header.Get("Authorization"), "Bearer ", "", 1)
+}
+
+func GetJWTClaims(r *http.Request) dto.JWTClaims {
+	token, _ := ParseToken(tokenGetter(r))
+	claims := token.Claims.(jwt.MapClaims)
+	var jwtClaims dto.JWTClaims
+	jwtClaims.Sub = claims["sub"].(string)
+	jwtClaims.UserID = uint(claims["uid"].(float64))
+	return jwtClaims
 }

@@ -30,6 +30,8 @@ type Job struct {
 	InventoryID    uint
 	Key            SshKey
 	KeyID          uint
+	User           User
+	UserID         uint
 	Status         Status
 	Version        string `gorm:"type:text"`
 	ExtraVariables string `gorm:"type:text"`
@@ -69,7 +71,11 @@ select * from jobs where id in (
 
 func GetJobs(page utils.Page, filters []utils.Filter) ([]*Job, *pagination.Paginator) {
 	var jobs []*Job
-	db := GetDB().Preload("Application").Preload("Inventory").Preload("Project")
+	db := GetDB().
+		Preload("Application").
+		Preload("Inventory").
+		Preload("User").
+		Preload("Project")
 	for _, filter := range filters {
 		db = db.Where(fmt.Sprintf("%s=?", filter.Key), filter.Value)
 	}
@@ -87,6 +93,7 @@ func GetJob(id uint) *Job {
 	err := GetDB().
 		Preload("Application.Project").
 		Preload("Project").
+		Preload("User").
 		Preload("Inventory").
 		Preload("Key").
 		First(&job, id).Error

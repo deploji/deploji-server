@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"github.com/gorilla/mux"
 	"github.com/sotomskir/mastermind-server/models"
+	"github.com/sotomskir/mastermind-server/services"
 	"github.com/sotomskir/mastermind-server/services/amqpService"
 	"github.com/sotomskir/mastermind-server/utils"
 	"net/http"
@@ -46,6 +47,7 @@ var SaveJobs = func(w http.ResponseWriter, r *http.Request) {
 		utils.Error(w, "Cannot decode job", err, http.StatusInternalServerError)
 		return
 	}
+	job.UserID = services.GetJWTClaims(r).UserID
 	err = models.SaveJob(&job)
 	if err != nil {
 		utils.Error(w, "Cannot save job", err, http.StatusInternalServerError)
