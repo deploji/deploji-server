@@ -1,0 +1,39 @@
+language: go
+git:
+  quiet: true
+
+before_install:
+- go get -t -v ./...
+- sudo curl -L "https://github.com/sotomskir/goops/releases/download/nightly/goops-$(uname -s)-$(uname -m)" -o /usr/local/bin/goops && sudo chmod +x /usr/local/bin/goops
+- . <(goops setenv)
+
+script:
+- go test -race -coverprofile=coverage.txt -covermode=atomic ./...
+- go build
+- sonar-scanner -Dsonar.projectVersion=${GOOPS_SEMVER}
+
+after_success:
+- bash <(curl -s https://codecov.io/bash)
+- ./tag-nightly.sh
+
+before_deploy:
+- go get github.com/inconshreveable/mousetrap
+- go get github.com/konsorten/go-windows-terminal-sequences
+- ./build.sh
+
+deploy:
+  provider: releases
+  api_key: "$GH_TOKEN"
+  file_glob: true
+  file: bin/*
+  prerelease: true
+  overwrite: true
+  skip_cleanup: true
+  on:
+    tags: true
+
+addons:
+  sonarcloud:
+    organization: "sotomskir-github"
+    token:
+      secure: "$SONAR_TOKEN"

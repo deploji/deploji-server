@@ -5,10 +5,17 @@ import (
 	"github.com/jinzhu/gorm"
 )
 
+type Key string
+
 type SshKey struct {
 	gorm.Model
 	Title string `gorm:"type:text"`
-	Key   string `gorm:"type:text"`
+	Key   Key    `gorm:"type:text"`
+}
+
+// Marshaler ignores the field value completely.
+func (Key) MarshalJSON() ([]byte, error) {
+	return []byte(`""`), nil
 }
 
 func GetSshKeys() []*SshKey {
@@ -30,7 +37,6 @@ func GetSshKey(id uint64) *SshKey {
 	}
 	return &key
 }
-
 
 func SaveSshKey(key *SshKey) error {
 	if GetDB().NewRecord(key) {

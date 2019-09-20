@@ -4,14 +4,20 @@ import "github.com/jinzhu/gorm"
 
 type Template struct {
 	gorm.Model
-	Name string
-	Project Project
-	ProjectID uint
-	Inventory Inventory
-	InventoryID uint
-	SshKey SshKey
-	SshKeyID uint
-	Playbook string
+	Name                 string `gorm:"type:text"`
+	Project              Project
+	ProjectID            uint
+	Inventory            Inventory
+	InventoryID          uint
+	SshKey               SshKey
+	SshKeyID             uint
+	Playbook             string `gorm:"type:text"`
+	PromptSshKey         bool
+	PromptPlaybook       bool
+	PromptInventory      bool
+	PromptProject        bool
+	PromptExtraVariables bool
+	ExtraVariables       string `gorm:"type:text"`
 }
 
 func GetTemplates() []*Template {

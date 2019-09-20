@@ -2,57 +2,68 @@ package models
 
 import (
 	"fmt"
+	"github.com/golang-migrate/migrate/v4"
+	"github.com/golang-migrate/migrate/v4/database"
+	"github.com/golang-migrate/migrate/v4/database/postgres"
+	_ "github.com/golang-migrate/migrate/v4/database/postgres"
+	"github.com/golang-migrate/migrate/v4/source/file"
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/mysql"
 	_ "github.com/jinzhu/gorm/dialects/postgres"
-	"github.com/joho/godotenv"
+	"github.com/sotomskir/mastermind-server/settings"
+	"log"
 	"os"
 )
 
 var db *gorm.DB
 
 func InitDatabase() {
-
-	e := godotenv.Load()
-	if e != nil {
-		fmt.Print(e)
-	}
-
-	username := os.Getenv("DB_USER")
-	password := os.Getenv("DB_PASS")
-	dbName := os.Getenv("DB_NAME")
-	dbHost := os.Getenv("DB_HOST")
-	dbPort := os.Getenv("DB_PORT")
-	dbType := os.Getenv("DB_TYPE")
-
-	var dbUri string
-	if dbType == "mysql" {
-		dbUri = fmt.Sprintf("%s:%s@tcp(%s)/%s?charset=utf8&parseTime=True&loc=Local", username, password, dbHost, dbName)
-	} else if dbType == "postgres" {
-		dbUri = fmt.Sprintf("host=%s port=%s user=%s dbname=%s password=%s sslmode=disable", dbHost, dbPort, username, dbName, password)
-	} else {
-		panic("unsupported database type")
-	}
-
-	fmt.Println(dbUri)
-
-	conn, err := gorm.Open(dbType, dbUri)
+	settings.Load()
+	conn, err := gorm.Open(settings.Database.Type, settings.Database.URI)
 	if err != nil {
 		fmt.Print(err)
 	}
 
 	db = conn
-	db.LogMode(true)
+	db.LogMode(os.Getenv("GORM_LOG_MODE") == "true")
 	db.AutoMigrate(
 		&Project{},
 		&SshKey{},
 		&Application{},
 		&ApplicationInventory{},
 		&Inventory{},
+		&Job{},
+		&JobLog{},
 		&Repository{},
-		&DeploymentLog{},
 		&Template{},
-		&Deployment{})
+		&User{},
+		&Setting{},
+		&SettingGroup{})
+
+	driver, err := postgres.WithInstance(db.DB(), &postgres.Config{})
+	runMigrations(driver)
+}
+
+func runMigrations(driver database.Driver) error {
+	fsrc, err := (&file.File{}).Open("file://migrations")
+	if err != nil {
+		log.Printf("Cannot open migrations file: %s", err)
+		return err
+	}
+	m, err := migrate.NewWithInstance(
+		"file",
+		fsrc,
+		"postgres",
+		driver)
+	if err != nil {
+		log.Printf("Cannot create migrate instance: %s", err)
+		return err
+	}
+	if err := m.Steps(2); err != nil {
+		log.Printf("Migration error: %s", err)
+		return err
+	}
+	return nil
 }
 
 func GetDB() *gorm.DB {

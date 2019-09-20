@@ -2,7 +2,6 @@ package models
 
 import (
 	"github.com/jinzhu/gorm"
-	"time"
 )
 
 type Application struct {
@@ -16,6 +15,7 @@ type Application struct {
 	RepositoryArtifact string
 	Inventories        []ApplicationInventory
 	AnsiblePlaybook    string `gorm:"type:text"`
+	RepositoryGroup    string `gorm:"type:text"`
 }
 
 func GetApplications() ([]*Application, error) {
@@ -37,6 +37,8 @@ func GetApplication(id uint) *Application {
 		Preload("Project").
 		Preload("Repository").
 		Preload("Inventories.Inventory").
+		Preload("Inventories.Application").
+		Preload("Inventories.Key").
 		First(&application, id).Error
 	if err != nil {
 		return nil
@@ -51,30 +53,18 @@ func SaveApplication(application *Application) error {
 			return err
 		}
 	} else {
-		if err := GetDB().
-			Table("application_inventories").
-			Where("application_id=?", application.ID).
-			UpdateColumn("deleted_at", nil).Error; err != nil {
-			return err
-		}
-		if err := GetDB().Omit("created_at").Save(application).Error; err != nil {
-			return err
-		}
-		var inventoryIds []uint
 		for _, inventory := range application.Inventories {
-			inventoryIds = append(inventoryIds, inventory.InventoryID)
+			err := GetDB().Save(&inventory).Error
+			if err != nil {
+				return err
+			}
 		}
 		if err := GetDB().
-			Table("application_inventories").
-			Where("application_id=?", application.ID).
-			UpdateColumn("deleted_at", time.Now()).Error; err != nil {
-			return err
-		}
-		if err := GetDB().
-			Table("application_inventories").
-			Where("application_id=?", application.ID).
-			Where("inventory_id IN (?)", inventoryIds).
-			UpdateColumn("deleted_at", nil).Error; err != nil {
+			Set("gorm:association_autocreate", false).
+			Omit("created_at").
+			Model(&application).
+			Update(application).
+			Error; err != nil {
 			return err
 		}
 	}

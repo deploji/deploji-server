@@ -3,16 +3,21 @@ package services
 import (
 	"errors"
 	"fmt"
+	"github.com/sotomskir/mastermind-server/dto"
 	"github.com/sotomskir/mastermind-server/models"
+	"log"
+	"regexp"
+	"sort"
+	"strings"
 )
 
-var GetVersions = func(appId uint) ([]models.Version, error) {
+var GetVersions = func(appId uint) ([]dto.Version, error) {
 	app := models.GetApplication(appId)
 	if app == nil {
 		return nil, errors.New("not found")
 	}
-	var versions []models.Version
-	if app.Repository.Type == "docker" {
+	var versions []dto.Version
+	if app.Repository.Type == "docker-v1" {
 		url := fmt.Sprintf("%s/v1/repositories/%s/tags", app.Repository.Url, app.RepositoryArtifact)
 		var response []map[string]string
 		err := GetJson(url, &response)
@@ -20,8 +25,71 @@ var GetVersions = func(appId uint) ([]models.Version, error) {
 			return nil, err
 		}
 		for _, item := range response {
-			versions = append(versions, models.Version{Name:item["name"]})
+			versions = append(versions, dto.Version{Name: item["name"]})
+		}
+		for i, j := 0, len(versions)-1; i < j; i, j = i+1, j-1 {
+			versions[i], versions[j] = versions[j], versions[i]
 		}
 	}
+	if app.Repository.Type == "docker-v2" {
+		url := fmt.Sprintf("%s/v2/%s/tags/list", app.Repository.Url, app.RepositoryArtifact)
+		var response map[string]interface{}
+		err := GetJson(url, &response)
+		if err != nil {
+			log.Printf("GetJson error: %s", err)
+			return nil, err
+		}
+
+		for _, item := range response["tags"].([]interface{}) {
+			versions = append(versions, dto.Version{Name: item.(string)})
+		}
+		for i, j := 0, len(versions)-1; i < j; i, j = i+1, j-1 {
+			versions[i], versions[j] = versions[j], versions[i]
+		}
+	}
+	if app.Repository.Type == "nexus-v3" {
+		continuationToken := ""
+		hasMore := true
+		versionsMap := make(map[string]dto.Version)
+		regex := regexp.MustCompile(`-\d{8}\.\d{6}-\d{1,4}`)
+		for hasMore {
+			url := fmt.Sprintf(
+				"%s/service/rest/v1/search?repository=%s&group=%s&name=%s%s",
+				app.Repository.Url,
+				app.Repository.NexusName,
+				app.RepositoryGroup,
+				app.RepositoryArtifact,
+				continuationToken)
+			var response map[string]interface{}
+			err := GetJson(url, &response)
+			if err != nil {
+				log.Printf("GetJson error: %s", err)
+				return nil, err
+			}
+			hasMore = response["continuationToken"] != nil
+			if hasMore {
+				continuationToken = fmt.Sprintf("&continuationToken=%s", response["continuationToken"].(string))
+			}
+
+			for _, item := range response["items"].([]interface{}) {
+				version := regex.ReplaceAllString(item.(map[string]interface{})["version"].(string), "-SNAPSHOT")
+				versionsMap[version] = dto.Version{Name: version, SortKey: getSortKey(version)}
+			}
+		}
+		for _, item := range versionsMap {
+			versions = append(versions, item)
+		}
+		sort.Sort(dto.ByName(versions))
+	}
 	return versions, nil
+}
+
+func getSortKey(version string) string {
+	regex := regexp.MustCompile(`\d{1,4}\.\d{1,4}\.\d{1,4}`)
+	semver := string(regex.Find([]byte(version)))
+	parts := strings.Split(semver, ".")
+	if len(parts) < 3 {
+		return version
+	}
+	return fmt.Sprintf("%03s.%03s.%03s", parts[0], parts[1], parts[2])
 }

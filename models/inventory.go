@@ -10,7 +10,6 @@ type Inventory struct {
 	Project                Project
 	ProjectID              uint
 	SourceFile             string
-	Key                    SshKey
 	ApplicationInventories []ApplicationInventory
 }
 

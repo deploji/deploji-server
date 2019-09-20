@@ -1,12 +1,21 @@
 package models
 
+import (
+	"github.com/jinzhu/gorm"
+)
+
 type ApplicationInventory struct {
+	gorm.Model
 	IsActive        bool
 	Application     Application
-	ApplicationID   uint `gorm:"primary_key"`
+	ApplicationID   uint
 	Inventory       Inventory
-	InventoryID     uint   `gorm:"primary_key"`
+	InventoryID     uint
+	Name            string `gorm:"type:text"`
 	ApplicationUrls string `gorm:"type:text"`
+	ExtraVariables  string `gorm:"type:text"`
+	Key             SshKey
+	KeyID           uint
 }
 
 func GetApplicationInventories() ([]*ApplicationInventory, error) {
