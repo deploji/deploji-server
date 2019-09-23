@@ -29,7 +29,7 @@ func GetSshKeys() []*SshKey {
 	return keys
 }
 
-func GetSshKey(id uint64) *SshKey {
+func GetSshKey(id uint) *SshKey {
 	var key SshKey
 	err := GetDB().First(&key, id).Error
 	if err != nil {

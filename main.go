@@ -1,17 +1,23 @@
 package main
 
 import (
+	"fmt"
+	"github.com/casbin/casbin/v2"
+	gormadapter "github.com/casbin/gorm-adapter/v2"
 	_ "github.com/golang-migrate/migrate/v4/database/postgres"
 	"github.com/gorilla/mux"
 	"github.com/sotomskir/mastermind-server/controllers"
-	"github.com/sotomskir/mastermind-server/services"
+	"github.com/sotomskir/mastermind-server/middleware"
+	"github.com/sotomskir/mastermind-server/models"
 	"github.com/sotomskir/mastermind-server/services/amqpService"
+	"github.com/sotomskir/mastermind-server/services/auth"
 	"github.com/sotomskir/mastermind-server/settings"
 	"github.com/urfave/negroni"
 	"golang.org/x/net/context"
+	"log"
 	"os"
+	"time"
 )
-
 
 func main() {
 	ctx, done := context.WithCancel(context.Background())
@@ -20,15 +26,9 @@ func main() {
 	if err != nil {
 		log.Printf("NewAdapter error: %s", err)
 	}
-	auth.E, _ = casbin.NewEnforcer("rbac_model.conf", a)
+	auth.E, _ = casbin.NewSyncedEnforcer("rbac_model.conf", a)
+	auth.E.StartAutoLoadPolicy(time.Second * 60)
 
-
-	go func() {
-		amqpService.Publish(amqpService.Redial(ctx, os.Getenv("AMQP_URL")), amqpService.Jobs, "jobs")
-		done()
-	}()
-
-	ctx, done := context.WithCancel(context.Background())
 	models.InitDatabase()
 	go func() {
 		amqpService.Publish(amqpService.Redial(ctx, os.Getenv("AMQP_URL")), amqpService.Jobs, "jobs")
@@ -67,8 +67,8 @@ func main() {
 	authRouter.HandleFunc("/projects/{id}/synchronize", controllers.SynchronizeProject).Methods("POST")
 	authRouter.HandleFunc("/projects/{id}/files", controllers.GetProjectFiles).Methods("GET")
 	authRouter.HandleFunc("/templates", controllers.GetTemplates).Methods("GET")
-	authRouter.HandleFunc("/templates", controllers.SaveTemplates).Methods("POST")
-	authRouter.HandleFunc("/templates", controllers.SaveTemplates).Methods("PUT")
+	authRouter.HandleFunc("/templates", controllers.SaveTemplate).Methods("POST")
+	authRouter.HandleFunc("/templates", controllers.SaveTemplate).Methods("PUT")
 	authRouter.HandleFunc("/templates/{id}", controllers.GetTemplate).Methods("GET")
 	authRouter.HandleFunc("/templates/{id}", controllers.DeleteTemplate).Methods("DELETE")
 	authRouter.HandleFunc("/applications", controllers.GetApplications).Methods("GET")
@@ -83,12 +83,27 @@ func main() {
 	authRouter.HandleFunc("/auth/users", controllers.SaveUser).Methods("PUT")
 	authRouter.HandleFunc("/auth/users", controllers.GetUsers).Methods("GET")
 	authRouter.HandleFunc("/auth/users/{id}", controllers.GetUser).Methods("GET")
+	authRouter.HandleFunc("/teams", controllers.GetTeams).Methods("GET")
+	authRouter.HandleFunc("/teams", controllers.SaveTeam).Methods("POST")
+	authRouter.HandleFunc("/teams", controllers.SaveTeam).Methods("PUT")
+	authRouter.HandleFunc("/teams/{id}", controllers.GetTeam).Methods("GET")
+	authRouter.HandleFunc("/teams/{id}", controllers.DeleteTeam).Methods("DELETE")
+	authRouter.HandleFunc("/teams/{id}/users", controllers.GetTeamUsers).Methods("GET")
+	authRouter.HandleFunc("/teams/{id}/users", controllers.SaveTeamUser).Methods("POST")
+	authRouter.HandleFunc("/teams/{id}/users/{userId}", controllers.DeleteTeamUser).Methods("DELETE")
+	authRouter.HandleFunc("/teams/{id}/permissions", controllers.GetTeamPermissions).Methods("GET")
+	authRouter.HandleFunc("/teams/{id}/permissions", controllers.SaveTeamPermission).Methods("POST")
+	authRouter.HandleFunc("/teams/{id}/permissions/delete", controllers.DeleteTeamPermission).Methods("POST")
 	authRouter.HandleFunc("/settings", controllers.GetSettings).Methods("GET")
 	authRouter.HandleFunc("/settings", controllers.SaveSettings).Methods("PUT")
 	openRouter.HandleFunc("/auth/authenticate", controllers.Authenticate).Methods("POST")
 	openRouter.HandleFunc("/auth/refresh", controllers.Refresh).Methods("POST")
 
-	an := negroni.New(negroni.HandlerFunc(services.JwtMiddleware), negroni.Wrap(authRouter))
+	an := negroni.New(
+		negroni.HandlerFunc(middleware.JwtMiddleware),
+		negroni.HandlerFunc(middleware.AuthMiddleware),
+		negroni.HandlerFunc(middleware.HeadersMiddleware),
+		negroni.Wrap(authRouter))
 	openRouter.PathPrefix("/").Handler(an)
 	n := negroni.Classic()
 	n.UseHandler(openRouter)

@@ -17,7 +17,6 @@ var GetRepositories = func(w http.ResponseWriter, r *http.Request) {
 		utils.Error(w, "Cannot load repositories", errors.New("not found"), http.StatusInternalServerError)
 		return
 	}
-	w.Header().Add("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(repositories)
 }
 
@@ -29,7 +28,6 @@ var GetRepository = func(w http.ResponseWriter, r *http.Request) {
 		utils.Error(w, "Cannot load repository", errors.New("not found"), http.StatusNotFound)
 		return
 	}
-	w.Header().Add("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(repository)
 }
 
@@ -46,7 +44,6 @@ var SaveRepositories = func(w http.ResponseWriter, r *http.Request) {
 		utils.Error(w, "Cannot save repository", err, http.StatusInternalServerError)
 		return
 	}
-	w.Header().Add("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(repository)
 }
 
@@ -63,5 +60,4 @@ var DeleteRepository = func(w http.ResponseWriter, r *http.Request) {
 		utils.Error(w, "Cannot delete repository", err, http.StatusInternalServerError)
 		return
 	}
-	w.Header().Add("Content-Type", "application/json")
 }

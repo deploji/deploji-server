@@ -6,15 +6,23 @@ import (
 )
 
 type Password string
+type UserType string
+
+const (
+	UserTypeAdmin   UserType = "admin"
+	UserTypeAuditor UserType = "auditor"
+	UserTypeRegular UserType = "regular"
+)
 
 type User struct {
 	gorm.Model
-	Name string
-	Surname string
+	Name     string
+	Surname  string
 	Username string `gorm:"unique_index"`
-	Email string
+	Email    string
 	Password Password
 	IsActive bool
+	Type     UserType
 }
 
 // Marshaler ignores the field value completely.

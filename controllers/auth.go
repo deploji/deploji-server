@@ -12,7 +12,6 @@ import (
 )
 
 var Authenticate = func(w http.ResponseWriter, r *http.Request) {
-	w.Header().Add("Content-Type", "application/json")
 	var credentials dto.Credentials
 	err := json.NewDecoder(r.Body).Decode(&credentials)
 	if err != nil || credentials.Username == "" || credentials.Password == "" {

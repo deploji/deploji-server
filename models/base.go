@@ -36,6 +36,7 @@ func InitDatabase() {
 		&JobLog{},
 		&Repository{},
 		&Template{},
+		&Team{},
 		&User{},
 		&Setting{},
 		&SettingGroup{})

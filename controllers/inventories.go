@@ -5,6 +5,8 @@ import (
 	"errors"
 	"github.com/gorilla/mux"
 	"github.com/sotomskir/mastermind-server/models"
+	"github.com/sotomskir/mastermind-server/services"
+	"github.com/sotomskir/mastermind-server/services/auth"
 	"github.com/sotomskir/mastermind-server/utils"
 	"log"
 	"net/http"
@@ -12,12 +14,11 @@ import (
 )
 
 var GetInventories = func(w http.ResponseWriter, r *http.Request) {
-	inventories := models.GetInventories()
+	inventories := auth.FilterInventories(models.GetInventories(), services.GetJWTClaims(r))
 	if inventories == nil {
 		utils.Error(w, "Cannot load inventories", errors.New("not found"), http.StatusInternalServerError)
 		return
 	}
-	w.Header().Add("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(inventories)
 }
 
@@ -29,7 +30,6 @@ var GetInventory = func(w http.ResponseWriter, r *http.Request) {
 		utils.Error(w, "Cannot load inventory", errors.New("not found"), http.StatusNotFound)
 		return
 	}
-	w.Header().Add("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(inventory)
 }
 
@@ -46,7 +46,6 @@ var SaveInventories = func(w http.ResponseWriter, r *http.Request) {
 		utils.Error(w, "Cannot save inventory", err, http.StatusInternalServerError)
 		return
 	}
-	w.Header().Add("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(inventory)
 }
 
@@ -63,5 +62,4 @@ var DeleteInventory = func(w http.ResponseWriter, r *http.Request) {
 		utils.Error(w, "Cannot delete inventory", err, http.StatusInternalServerError)
 		return
 	}
-	w.Header().Add("Content-Type", "application/json")
 }

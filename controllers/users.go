@@ -22,7 +22,6 @@ var GetUsers = func(w http.ResponseWriter, r *http.Request) {
 	for _, user := range users {
 		user.Password = ""
 	}
-	w.Header().Add("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(users)
 }
 
@@ -35,7 +34,6 @@ var GetUser = func(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	user.Password = ""
-	w.Header().Add("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(user)
 }
 
@@ -58,7 +56,6 @@ var SaveUser = func(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	user.Password = ""
-	w.Header().Add("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(user)
 }
 
@@ -75,5 +72,4 @@ var DeleteUser = func(w http.ResponseWriter, r *http.Request) {
 		utils.Error(w, "Cannot delete user", err, http.StatusInternalServerError)
 		return
 	}
-	w.Header().Add("Content-Type", "application/json")
 }

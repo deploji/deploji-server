@@ -17,14 +17,12 @@ var GetJobs = func(w http.ResponseWriter, r *http.Request) {
 	page := utils.NewPage(r)
 	filters := utils.NewFilters(r, []string{"application_id", "inventory_id"})
 	jobs, paginator := models.GetJobs(page, filters)
-	w.Header().Add("Content-Type", "application/json")
 	w.Header().Add("X-Total-Count", fmt.Sprintf("%d", paginator.TotalRecord))
 	json.NewEncoder(w).Encode(jobs)
 }
 
 var GetLatestDeployments = func(w http.ResponseWriter, r *http.Request) {
 	deployments := models.GetLatestDeployments()
-	w.Header().Add("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(deployments)
 }
 
@@ -36,7 +34,6 @@ var GetJob = func(w http.ResponseWriter, r *http.Request) {
 		utils.Error(w, "Cannot load job", errors.New("not found"), http.StatusNotFound)
 		return
 	}
-	w.Header().Add("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(job)
 }
 
@@ -59,7 +56,6 @@ var SaveJobs = func(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	w.Header().Add("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(job)
 }
 
@@ -67,6 +63,5 @@ var GetJobLogs = func(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id, _ := strconv.ParseUint(vars["id"], 10, 16)
 	jobLogs := models.GetJobLogs(uint(id))
-	w.Header().Add("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(jobLogs)
 }
