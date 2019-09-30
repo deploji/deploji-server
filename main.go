@@ -4,14 +4,14 @@ import (
 	"fmt"
 	"github.com/casbin/casbin/v2"
 	gormadapter "github.com/casbin/gorm-adapter/v2"
+	"github.com/deploji/deploji-server/controllers"
+	"github.com/deploji/deploji-server/middleware"
+	"github.com/deploji/deploji-server/models"
+	"github.com/deploji/deploji-server/services/amqpService"
+	"github.com/deploji/deploji-server/services/auth"
+	"github.com/deploji/deploji-server/settings"
 	_ "github.com/golang-migrate/migrate/v4/database/postgres"
 	"github.com/gorilla/mux"
-	"github.com/sotomskir/mastermind-server/controllers"
-	"github.com/sotomskir/mastermind-server/middleware"
-	"github.com/sotomskir/mastermind-server/models"
-	"github.com/sotomskir/mastermind-server/services/amqpService"
-	"github.com/sotomskir/mastermind-server/services/auth"
-	"github.com/sotomskir/mastermind-server/settings"
 	"github.com/urfave/negroni"
 	"golang.org/x/net/context"
 	"log"
@@ -21,7 +21,7 @@ import (
 
 func main() {
 	ctx, done := context.WithCancel(context.Background())
-	uri := fmt.Sprintf("host=%s port=%s user=%s dbname=%s password=%s sslmode=disable", "localhost", "5432", "mastermind", "mastermind", "mastermind")
+	uri := fmt.Sprintf("host=%s port=%s user=%s dbname=%s password=%s sslmode=disable", "localhost", "5432", "deploji", "deploji", "deploji")
 	a, err := gormadapter.NewAdapter("postgres", uri, true) // Your driver and data source.
 	if err != nil {
 		log.Printf("NewAdapter error: %s", err)

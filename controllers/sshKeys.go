@@ -3,11 +3,11 @@ package controllers
 import (
 	"encoding/json"
 	"errors"
+	"github.com/deploji/deploji-server/models"
+	"github.com/deploji/deploji-server/services"
+	"github.com/deploji/deploji-server/services/auth"
+	"github.com/deploji/deploji-server/utils"
 	"github.com/gorilla/mux"
-	"github.com/sotomskir/mastermind-server/models"
-	"github.com/sotomskir/mastermind-server/services"
-	"github.com/sotomskir/mastermind-server/services/auth"
-	"github.com/sotomskir/mastermind-server/utils"
 	"net/http"
 	"strconv"
 )

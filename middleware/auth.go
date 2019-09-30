@@ -2,9 +2,9 @@ package middleware
 
 import (
 	"errors"
-	"github.com/sotomskir/mastermind-server/services"
-	"github.com/sotomskir/mastermind-server/services/auth"
-	"github.com/sotomskir/mastermind-server/utils"
+	"github.com/deploji/deploji-server/services"
+	"github.com/deploji/deploji-server/services/auth"
+	"github.com/deploji/deploji-server/utils"
 	"net/http"
 	"strconv"
 	"strings"

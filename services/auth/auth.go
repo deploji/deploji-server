@@ -3,8 +3,8 @@ package auth
 import (
 	"fmt"
 	"github.com/casbin/casbin/v2"
-	"github.com/sotomskir/mastermind-server/dto"
-	"github.com/sotomskir/mastermind-server/models"
+	"github.com/deploji/deploji-server/dto"
+	"github.com/deploji/deploji-server/models"
 	"strconv"
 	"strings"
 )

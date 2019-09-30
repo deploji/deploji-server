@@ -3,9 +3,9 @@ services:
   postgres:
     image: postgres:9.6
     environment:
-      POSTGRES_DB: mastermind
-      POSTGRES_USER: mastermind
-      POSTGRES_PASSWORD: mastermind
+      POSTGRES_DB: deploji
+      POSTGRES_USER: deploji
+      POSTGRES_PASSWORD: deploji
     ports:
       - 5432
     volumes:
@@ -25,7 +25,7 @@ services:
         - "traefik.web.frontend.rule=PathPrefixStrip:/rabbit/"
 
   server:
-    image: sotomski/mastermind-server
+    image: sotomski/deploji-server
     environment:
       AMQP_URL: amqp://guest:guest@rabbit:5672/
       DB_HOST: postgres
@@ -38,7 +38,7 @@ services:
       - storage:/root/storage
 
   web:
-    image: sotomski/mastermind
+    image: sotomski/deploji
     deploy:
       labels:
         - "traefik.enable=true"
@@ -46,7 +46,7 @@ services:
         - "traefik.frontend.rule=PathPrefixStrip:/"
 
   worker:
-    image: sotomski/mastermind-worker
+    image: sotomski/deploji-worker
     environment:
       AMQP_URL: amqp://guest:guest@rabbit:5672/
       DB_HOST: postgres

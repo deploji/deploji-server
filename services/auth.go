@@ -3,10 +3,10 @@ package services
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/deploji/deploji-server/dto"
+	"github.com/deploji/deploji-server/models"
+	"github.com/deploji/deploji-server/settings"
 	"github.com/dgrijalva/jwt-go"
-	"github.com/sotomskir/mastermind-server/dto"
-	"github.com/sotomskir/mastermind-server/models"
-	"github.com/sotomskir/mastermind-server/settings"
 	"golang.org/x/crypto/bcrypt"
 	"gopkg.in/ldap.v3"
 	"log"

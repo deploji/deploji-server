@@ -1,6 +1,6 @@
 package dto
 
-import "github.com/sotomskir/mastermind-server/models"
+import "github.com/deploji/deploji-server/models"
 
 type JWT struct {
 	Token string

@@ -3,10 +3,10 @@ package controllers
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/sotomskir/mastermind-server/dto"
-	"github.com/sotomskir/mastermind-server/models"
-	"github.com/sotomskir/mastermind-server/services"
-	"github.com/sotomskir/mastermind-server/utils"
+	"github.com/deploji/deploji-server/dto"
+	"github.com/deploji/deploji-server/models"
+	"github.com/deploji/deploji-server/services"
+	"github.com/deploji/deploji-server/utils"
 	"log"
 	"net/http"
 )

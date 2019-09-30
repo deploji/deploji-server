@@ -1,8 +1,8 @@
 package middleware
 
 import (
-	"github.com/sotomskir/mastermind-server/services"
-	"github.com/sotomskir/mastermind-server/utils"
+	"github.com/deploji/deploji-server/services"
+	"github.com/deploji/deploji-server/utils"
 	"log"
 	"net/http"
 )

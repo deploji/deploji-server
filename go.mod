@@ -1,4 +1,4 @@
-module github.com/sotomskir/mastermind-server
+module github.com/deploji/deploji-server
 
 go 1.12
 

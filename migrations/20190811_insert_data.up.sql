@@ -8,13 +8,13 @@ VALUES (1, '2019-08-11 20:58:10.044090', '2019-08-11 20:58:10.044090', null, 'Do
         'https://registry.hub.docker.com', '', '');
 INSERT INTO public.applications (id, created_at, updated_at, deleted_at, name, ansible_name, project_id, repository_id,
                                  repository_artifact, ansible_playbook)
-VALUES (2, '2019-08-11 20:59:33.174062', '2019-08-11 21:10:50.605307', null, 'Mastermind server', 'mastermind-server',
-        1, 1, 'sotomski/mastermind-server', 'deploy.yml');
+VALUES (2, '2019-08-11 20:59:33.174062', '2019-08-11 21:10:50.605307', null, 'Deploji server', 'deploji-server',
+        1, 1, 'sotomski/deploji-server', 'deploy.yml');
 INSERT INTO public.applications (id, created_at, updated_at, deleted_at, name, ansible_name, project_id, repository_id,
                                  repository_artifact, ansible_playbook)
-VALUES (3, '2019-08-11 21:00:01.407079', '2019-08-11 21:10:55.794526', null, 'Mastermind worker', 'mastermind-worker',
-        1, 1, 'sotomski/mastermind-worker', 'deploy.yml');
+VALUES (3, '2019-08-11 21:00:01.407079', '2019-08-11 21:10:55.794526', null, 'Deploji worker', 'deploji-worker',
+        1, 1, 'sotomski/deploji-worker', 'deploy.yml');
 INSERT INTO public.applications (id, created_at, updated_at, deleted_at, name, ansible_name, project_id, repository_id,
                                  repository_artifact, ansible_playbook)
-VALUES (1, '2019-08-11 20:58:52.646516', '2019-08-11 21:11:09.667299', null, 'Mastermind frontend', 'mastermind-front',
-        1, 1, 'sotomski/mastermind', 'deploy.yml');
+VALUES (1, '2019-08-11 20:58:52.646516', '2019-08-11 21:11:09.667299', null, 'Deploji frontend', 'deploji-front',
+        1, 1, 'sotomski/deploji', 'deploy.yml');

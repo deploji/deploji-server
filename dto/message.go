@@ -2,7 +2,7 @@ package dto
 
 import (
 	"encoding/json"
-	"github.com/sotomskir/mastermind-server/models"
+	"github.com/deploji/deploji-server/models"
 	"log"
 )
 

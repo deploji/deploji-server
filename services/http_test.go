@@ -13,7 +13,7 @@ type TestType struct {
 func TestGetJson(t *testing.T) {
 	defer httpmock.DeactivateAndReset()
 	httpmock.Activate()
-	response := `{"id": "11", "name": "mastermind"}`
+	response := `{"id": "11", "name": "deploji"}`
 	httpmock.RegisterResponder("GET", "https://example.com/test.json", httpmock.NewStringResponder(200, response))
 	var json map[string]string
 	err := GetJson("https://example.com/test.json", &json)
@@ -23,7 +23,7 @@ func TestGetJson(t *testing.T) {
 	if json["id"] != "11" {
 		t.Errorf("TestGetJson: expected: 11, got: %s", json["id"])
 	}
-	if json["name"] != "mastermind" {
-		t.Errorf("TestGetJson: expected: mastermind, got: %s", json["name"])
+	if json["name"] != "deploji" {
+		t.Errorf("TestGetJson: expected: deploji, got: %s", json["name"])
 	}
 }
