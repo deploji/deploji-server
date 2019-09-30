@@ -3,8 +3,8 @@ package services
 import (
 	"errors"
 	"fmt"
-	"github.com/sotomskir/mastermind-server/dto"
-	"github.com/sotomskir/mastermind-server/models"
+	"github.com/deploji/deploji-server/dto"
+	"github.com/deploji/deploji-server/models"
 	"log"
 	"regexp"
 	"sort"

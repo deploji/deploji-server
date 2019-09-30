@@ -2,8 +2,8 @@ package controllers
 
 import (
 	"encoding/json"
-	"github.com/sotomskir/mastermind-server/models"
-	"github.com/sotomskir/mastermind-server/utils"
+	"github.com/deploji/deploji-server/models"
+	"github.com/deploji/deploji-server/utils"
 	"log"
 	"net/http"
 )

@@ -1,4 +1,4 @@
-module github.com/sotomskir/mastermind-server
+module github.com/deploji/deploji-server
 
 go 1.12
 
@@ -7,6 +7,8 @@ require (
 	github.com/auth0/go-jwt-middleware v0.0.0-20190730214358-66794f4bd8f6
 	github.com/aws/aws-sdk-go v1.21.8 // indirect
 	github.com/biezhi/gorm-paginator/pagination v0.0.0-20190124091837-7a5c8ed20334
+	github.com/casbin/casbin/v2 v2.0.2
+	github.com/casbin/gorm-adapter/v2 v2.0.3
 	github.com/cznic/b v0.0.0-20181122101859-a26611c4d92d // indirect
 	github.com/cznic/fileutil v0.0.0-20181122101858-4d67cfea8c87 // indirect
 	github.com/cznic/golex v0.0.0-20181122101858-9c343928389c // indirect

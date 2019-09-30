@@ -3,8 +3,8 @@ package models
 import (
 	"fmt"
 	"github.com/biezhi/gorm-paginator/pagination"
+	"github.com/deploji/deploji-server/utils"
 	"github.com/jinzhu/gorm"
-	"github.com/sotomskir/mastermind-server/utils"
 	"time"
 )
 

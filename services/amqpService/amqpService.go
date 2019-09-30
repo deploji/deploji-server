@@ -2,8 +2,8 @@ package amqpService
 
 import (
 	"encoding/json"
-	"github.com/sotomskir/mastermind-server/dto"
-	"github.com/sotomskir/mastermind-server/models"
+	"github.com/deploji/deploji-server/dto"
+	"github.com/deploji/deploji-server/models"
 	"github.com/streadway/amqp"
 	"golang.org/x/net/context"
 	"log"

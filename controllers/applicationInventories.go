@@ -2,9 +2,9 @@ package controllers
 
 import (
 	"errors"
+	"github.com/deploji/deploji-server/models"
+	"github.com/deploji/deploji-server/utils"
 	"github.com/gorilla/mux"
-	"github.com/sotomskir/mastermind-server/models"
-	"github.com/sotomskir/mastermind-server/utils"
 	"net/http"
 	"strconv"
 )

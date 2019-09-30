@@ -2,9 +2,9 @@ package controllers
 
 import (
 	"encoding/json"
+	"github.com/deploji/deploji-server/services"
+	"github.com/deploji/deploji-server/utils"
 	"github.com/gorilla/mux"
-	"github.com/sotomskir/mastermind-server/services"
-	"github.com/sotomskir/mastermind-server/utils"
 	"log"
 	"net/http"
 	"strconv"

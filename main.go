@@ -1,12 +1,12 @@
 package main
 
 import (
+	"github.com/deploji/deploji-server/controllers"
+	"github.com/deploji/deploji-server/services"
+	"github.com/deploji/deploji-server/services/amqpService"
+	"github.com/deploji/deploji-server/settings"
 	_ "github.com/golang-migrate/migrate/v4/database/postgres"
 	"github.com/gorilla/mux"
-	"github.com/sotomskir/mastermind-server/controllers"
-	"github.com/sotomskir/mastermind-server/services"
-	"github.com/sotomskir/mastermind-server/services/amqpService"
-	"github.com/sotomskir/mastermind-server/settings"
 	"github.com/urfave/negroni"
 	"golang.org/x/net/context"
 	"os"

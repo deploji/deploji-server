@@ -3,7 +3,7 @@ package services
 import (
 	"errors"
 	"fmt"
-	"github.com/sotomskir/mastermind-server/models"
+	"github.com/deploji/deploji-server/models"
 	"os"
 	"path/filepath"
 )

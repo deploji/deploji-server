@@ -2,6 +2,7 @@ package models
 
 import (
 	"fmt"
+	"github.com/deploji/deploji-server/settings"
 	"github.com/golang-migrate/migrate/v4"
 	"github.com/golang-migrate/migrate/v4/database"
 	"github.com/golang-migrate/migrate/v4/database/postgres"
@@ -10,7 +11,6 @@ import (
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/mysql"
 	_ "github.com/jinzhu/gorm/dialects/postgres"
-	"github.com/sotomskir/mastermind-server/settings"
 	"log"
 	"os"
 )
