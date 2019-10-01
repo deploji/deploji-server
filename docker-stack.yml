@@ -25,7 +25,7 @@ services:
         - "traefik.web.frontend.rule=PathPrefixStrip:/rabbit/"
 
   server:
-    image: sotomski/deploji-server
+    image: deploji/deploji-server
     environment:
       AMQP_URL: amqp://guest:guest@rabbit:5672/
       DB_HOST: postgres
@@ -38,7 +38,7 @@ services:
       - storage:/root/storage
 
   web:
-    image: sotomski/deploji
+    image: deploji/deploji
     deploy:
       labels:
         - "traefik.enable=true"
@@ -46,7 +46,7 @@ services:
         - "traefik.frontend.rule=PathPrefixStrip:/"
 
   worker:
-    image: sotomski/deploji-worker
+    image: deploji/deploji-worker
     environment:
       AMQP_URL: amqp://guest:guest@rabbit:5672/
       DB_HOST: postgres
