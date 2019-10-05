@@ -2,6 +2,7 @@ package middleware
 
 import (
 	"errors"
+	"github.com/deploji/deploji-server/dto"
 	"github.com/deploji/deploji-server/services"
 	"github.com/deploji/deploji-server/services/auth"
 	"github.com/deploji/deploji-server/utils"
@@ -18,7 +19,7 @@ func AuthMiddleware(rw http.ResponseWriter, r *http.Request, next http.HandlerFu
 	}
 	id, _ := strconv.ParseUint(arr[2], 10, 16)
 	user := services.GetJWTClaims(r)
-	if !auth.Enforce(user, auth.PermissionType(arr[1]), uint(id), auth.ActionType(r.Method)) {
+	if !auth.Enforce(user, dto.ObjectType(arr[1]), uint(id), dto.ActionType(r.Method)) {
 		utils.Error(rw, "Forbidden", errors.New(""), http.StatusForbidden)
 		return
 	}

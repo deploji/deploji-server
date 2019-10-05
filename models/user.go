@@ -65,7 +65,11 @@ func SaveUser(user *User) error {
 			return err
 		}
 	} else {
-		err := GetDB().Omit("created_at").Save(user).Error
+		db := GetDB().Omit("created_at")
+		if user.Password == "" {
+			db = db.Omit("password")
+		}
+		err := db.Save(user).Error
 		if err != nil {
 			return err
 		}

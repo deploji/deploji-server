@@ -16,8 +16,7 @@ import (
 var GetTeams = func(w http.ResponseWriter, r *http.Request) {
 	teams := models.GetTeams()
 	if teams == nil {
-		utils.Error(w, "Cannot load team", errors.New("not found"), http.StatusNotFound)
-		return
+		teams = make([]*models.Team, 0)
 	}
 	json.NewEncoder(w).Encode(teams)
 }
@@ -35,7 +34,7 @@ var GetTeam = func(w http.ResponseWriter, r *http.Request) {
 
 var GetTeamUsers = func(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
-	users := auth.GetUsersForRole(vars["id"])
+	users := auth.GetUsersForTeam(vars["id"])
 	json.NewEncoder(w).Encode(users)
 }
 
@@ -48,6 +47,7 @@ var SaveTeamUser = func(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	vars := mux.Vars(r)
+	user  = *models.GetUser(user.ID)
 	err = auth.AddUserToTeam(vars["id"], user.ID)
 	if nil != err {
 		utils.Error(w, "Error adding user: ", err, http.StatusInternalServerError)
@@ -67,7 +67,15 @@ var DeleteTeamUser = func(w http.ResponseWriter, r *http.Request) {
 
 var GetTeamPermissions = func(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
-	permissions := auth.GetPermissionsForTeam(vars["id"])
+	id, _ := strconv.ParseUint(vars["id"], 10, 16)
+	permissions := auth.GetPermissionsForTeam(uint(id))
+	json.NewEncoder(w).Encode(permissions)
+}
+
+var GetUserPermissions = func(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	id, _ := strconv.ParseUint(vars["id"], 10, 16)
+	permissions := auth.GetPermissionsForUser(uint(id))
 	json.NewEncoder(w).Encode(permissions)
 }
 
@@ -87,8 +95,7 @@ var SaveTeam = func(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(team)
 }
 
-var SaveTeamPermission = func(w http.ResponseWriter, r *http.Request) {
-	vars := mux.Vars(r)
+var SavePermission = func(w http.ResponseWriter, r *http.Request) {
 	var permission dto.Permission
 	err := json.NewDecoder(r.Body).Decode(&permission)
 	log.Println(err)
@@ -96,15 +103,20 @@ var SaveTeamPermission = func(w http.ResponseWriter, r *http.Request) {
 		utils.Error(w, "Cannot decode permission", err, http.StatusInternalServerError)
 		return
 	}
-	err = auth.AddPermissionToTeam(vars["id"], permission.ObjectType, permission.ObjectID, permission.Role)
+	err = auth.AddPermission(permission)
 	if nil != err {
 		utils.Error(w, "Cannot save team", err, http.StatusInternalServerError)
 		return
 	}
 }
 
-var DeleteTeamPermission = func(w http.ResponseWriter, r *http.Request) {
-	vars := mux.Vars(r)
+var GetPermissions = func(w http.ResponseWriter, r *http.Request) {
+	filters := utils.NewFilters(r, []string{"SubjectType", "ObjectType", "ObjectID"})
+	permissions := auth.GetPermissions(filters)
+	json.NewEncoder(w).Encode(permissions)
+}
+
+var DeletePermission = func(w http.ResponseWriter, r *http.Request) {
 	var permission dto.Permission
 	err := json.NewDecoder(r.Body).Decode(&permission)
 	log.Println(err)
@@ -112,7 +124,7 @@ var DeleteTeamPermission = func(w http.ResponseWriter, r *http.Request) {
 		utils.Error(w, "Cannot decode permission", err, http.StatusInternalServerError)
 		return
 	}
-	err = auth.RemovePermissionFromTeam(vars["id"], permission.ObjectType, permission.ObjectID, permission.Role)
+	err = auth.RemovePermission(permission)
 	if nil != err {
 		utils.Error(w, "Cannot save team", err, http.StatusInternalServerError)
 		return

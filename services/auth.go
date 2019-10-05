@@ -45,6 +45,9 @@ func AuthenticateLDAP(user *models.User, password string) (bool, error) {
 }
 
 func HashPassword(password models.Password) (models.Password, error) {
+	if password == "" {
+		return "", nil
+	}
 	bytes, err := bcrypt.GenerateFromPassword([]byte(password), 14)
 	return models.Password(bytes), err
 }

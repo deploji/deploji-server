@@ -5,66 +5,104 @@ import (
 	"github.com/casbin/casbin/v2"
 	"github.com/deploji/deploji-server/dto"
 	"github.com/deploji/deploji-server/models"
+	"github.com/deploji/deploji-server/utils"
 	"strconv"
 	"strings"
 )
 
 var E *casbin.SyncedEnforcer
 
-type PermissionType string
-type ActionType string
-
-const (
-	PermissionTypeInventory    PermissionType = "inventories"
-	PermissionTypeSshKey       PermissionType = "ssh-keys"
-	PermissionTypeTemplate     PermissionType = "templates"
-	PermissionTypeApplications PermissionType = "applications"
-	PermissionTypeTeams        PermissionType = "teams"
-	PermissionTypeUsers        PermissionType = "users"
-	PermissionTypeJobs         PermissionType = "jobs"
-	PermissionTypeRepositories PermissionType = "repositories"
-)
-
-const (
-	ActionTypeRead  ActionType = "GET"
-	ActionTypeWrite ActionType = "POST"
-	ActionTypeAdmin ActionType = "ADMIN"
-)
-
-func GetPermissionsForTeam(teamId string) []dto.Permission {
+func getPermissionsForSubject(subjectType dto.SubjectType, subjectId uint) []dto.Permission {
 	permissions := make([]dto.Permission, 0)
-	for _, permission := range E.GetPermissionsForUser(fmt.Sprintf("%s/%s", PermissionTypeTeams, teamId)) {
+	for _, permission := range E.GetPermissionsForUser(fmt.Sprintf("%s/%d", subjectType, subjectId)) {
 		objectType, id := splitPermission(permission[1])
-		objectName := getObjectName(objectType, id)
+		objectName := getObjectName(dto.ObjectType(objectType), id)
+		subjectName := getSubjectName(subjectType, subjectId)
 		permissions = append(permissions, dto.Permission{
-			Name:       objectName,
-			ObjectType: string(objectType),
-			ObjectID:   id,
-			Role:       permission[2],
+			ObjectType:  dto.ObjectType(objectType),
+			ObjectID:    id,
+			ObjectName:  objectName,
+			SubjectType: subjectType,
+			SubjectID:   subjectId,
+			SubjectName: subjectName,
+			Action:      permission[2],
 		})
 	}
 	return permissions
 }
 
-func getObjectName(permissionType PermissionType, id uint) string {
+func GetPermissions(filters []utils.Filter) []dto.Permission {
+	permissions := make([]dto.Permission, 0)
+	for _, permission := range E.GetPolicy() {
+		subjectType, subjectId := splitPermission(permission[0])
+		objectType, objectId := splitPermission(permission[1])
+		if !matchFilters(filters, subjectType, subjectId, objectType, objectId) {
+			continue
+		}
+		action := permission[2]
+		objectName := getObjectName(dto.ObjectType(objectType), objectId)
+		subjectName := getSubjectName(dto.SubjectType(subjectType), subjectId)
+		permissions = append(permissions, dto.Permission{
+			ObjectType:  dto.ObjectType(objectType),
+			ObjectID:    objectId,
+			ObjectName:  objectName,
+			SubjectType: dto.SubjectType(subjectType),
+			SubjectID:   subjectId,
+			SubjectName: subjectName,
+			Action:      action,
+		})
+	}
+	return permissions
+}
+
+func matchFilters(filters []utils.Filter, subjectType string, subjectId uint, objectType string, objectId uint) bool {
+	for _, filter := range filters {
+		switch filter.Key {
+		case "SubjectType":
+			if subjectType != filter.Value {
+				return false
+			}
+			break
+		case "ObjectType":
+			if objectType != filter.Value {
+				return false
+			}
+		case "ObjectID":
+			if fmt.Sprintf("%d", objectId) != filter.Value {
+				return false
+			}
+		}
+	}
+	return true
+}
+
+func GetPermissionsForTeam(teamId uint) []dto.Permission {
+	return getPermissionsForSubject(dto.SubjectTypeTeam, teamId)
+}
+
+func GetPermissionsForUser(userId uint) []dto.Permission {
+	return getPermissionsForSubject(dto.SubjectTypeUser, userId)
+}
+
+func getObjectName(permissionType dto.ObjectType, id uint) string {
 	var name string
 	switch permissionType {
-	case PermissionTypeInventory:
+	case dto.ObjectTypeInventory:
 		inventory := models.GetInventory(id)
 		if inventory != nil {
 			name = inventory.Name
 		}
-	case PermissionTypeTemplate:
+	case dto.ObjectTypeTemplate:
 		template := models.GetTemplate(id)
 		if template != nil {
 			name = template.Name
 		}
-	case PermissionTypeApplications:
+	case dto.ObjectTypeApplications:
 		application := models.GetApplication(id)
 		if application != nil {
 			name = application.Name
 		}
-	case PermissionTypeSshKey:
+	case dto.ObjectTypeSshKey:
 		key := models.GetSshKey(id)
 		if key != nil {
 			name = key.Title
@@ -72,21 +110,39 @@ func getObjectName(permissionType PermissionType, id uint) string {
 	default:
 		name = fmt.Sprintf("%d", id)
 	}
-	return fmt.Sprintf("%s: %s", permissionType, name)
+	return name
 }
 
-func splitPermission(perm string) (PermissionType, uint) {
+func getSubjectName(subjectType dto.SubjectType, id uint) string {
+	var name string
+	switch subjectType {
+	case dto.SubjectTypeUser:
+		user := models.GetUser(id)
+		if user != nil {
+			name = user.Username
+		}
+	case dto.SubjectTypeTeam:
+		team := models.GetTeam(id)
+		if team != nil {
+			name = team.Name
+		}
+	default:
+		name = fmt.Sprintf("%d", id)
+	}
+	return name
+}
+
+func splitPermission(perm string) (string, uint) {
 	split := strings.Split(perm, "/")
-	permType := PermissionType(split[0])
 	id, _ := strconv.ParseUint(split[1], 10, 16)
-	return permType, uint(id)
+	return split[0], uint(id)
 }
 
-func GetUsersForRole(teamId string) []models.User {
-	casbinUsers, _ := E.GetUsersForRole(fmt.Sprintf("%s/%s", PermissionTypeTeams, teamId))
+func GetUsersForTeam(teamId string) []models.User {
+	casbinUsers, _ := E.GetUsersForRole(fmt.Sprintf("%s/%s", dto.SubjectTypeTeam, teamId))
 	users := make([]models.User, 0)
 	for _, username := range casbinUsers {
-		id, _ := strconv.ParseUint(strings.TrimLeft(username, fmt.Sprintf("%s/", PermissionTypeUsers)), 10, 16)
+		id, _ := strconv.ParseUint(strings.TrimLeft(username, fmt.Sprintf("%s/", dto.SubjectTypeUser)), 10, 16)
 		user := models.GetUser(uint(id))
 		if user != nil {
 			users = append(users, *user)
@@ -96,48 +152,58 @@ func GetUsersForRole(teamId string) []models.User {
 }
 
 func AddUserToTeam(teamId string, userId uint) error {
-	_, err := E.AddGroupingPolicy(fmt.Sprintf("%s/%d", PermissionTypeUsers, userId), fmt.Sprintf("%s/%s", PermissionTypeTeams, teamId))
+	_, err := E.AddGroupingPolicy(
+		fmt.Sprintf("%s/%d", dto.ObjectTypeUsers, userId),
+		fmt.Sprintf("%s/%s", dto.ObjectTypeTeams, teamId))
 	return err
 }
 
 func RemoveUserFromTeam(teamId string, userId string) error {
-	_, err := E.RemoveGroupingPolicy(fmt.Sprintf("%s/%s", PermissionTypeUsers, userId), fmt.Sprintf("%s/%s", PermissionTypeTeams, teamId))
+	_, err := E.RemoveGroupingPolicy(
+		fmt.Sprintf("%s/%s", dto.ObjectTypeUsers, userId),
+		fmt.Sprintf("%s/%s", dto.ObjectTypeTeams, teamId))
 	return err
 }
 
-func AddPermissionToTeam(teamId string, objectType string, objectId uint, role string) error {
-	_, err := E.AddPolicy(fmt.Sprintf("%s/%s", PermissionTypeTeams, teamId), fmt.Sprintf("%s/%d", objectType, objectId), role)
+func AddPermission(permission dto.Permission) error {
+	_, err := E.AddPolicy(
+		fmt.Sprintf("%s/%d", permission.SubjectType, permission.SubjectID),
+		fmt.Sprintf("%s/%d", permission.ObjectType, permission.ObjectID),
+		permission.Action)
 	return err
 }
 
-func RemovePermissionFromTeam(teamId string, objectType string, objectId uint, role string) error {
-	_, err := E.RemovePolicy(fmt.Sprintf("%s/%s", PermissionTypeTeams, teamId), fmt.Sprintf("%s/%d", objectType, objectId), role)
+func RemovePermission(permission dto.Permission) error {
+	_, err := E.RemovePolicy(
+		fmt.Sprintf("%s/%d", permission.SubjectType, permission.SubjectID),
+		fmt.Sprintf("%s/%d", permission.ObjectType, permission.ObjectID),
+		permission.Action)
 	return err
 }
 
 func GetImplicitPermissionsForUser(id uint) ([][]string, error) {
-	return E.GetImplicitPermissionsForUser(fmt.Sprintf("%s/%d", PermissionTypeUsers, id))
+	return E.GetImplicitPermissionsForUser(fmt.Sprintf("%s/%d", dto.ObjectTypeUsers, id))
 }
 
-func Enforce(user dto.JWTClaims, permType PermissionType, id uint, actionType ActionType) bool {
+func Enforce(user dto.JWTClaims, permType dto.ObjectType, id uint, actionType dto.ActionType) bool {
 	if user.Type == models.UserTypeAdmin {
 		return true
 	}
-	if user.Type == models.UserTypeAuditor && actionType == ActionTypeRead {
+	if user.Type == models.UserTypeAuditor && actionType == dto.ActionTypeRead {
 		return true
 	}
-	if permType == PermissionTypeRepositories ||
-		permType == PermissionTypeJobs {
+	if permType == dto.ObjectTypeRepositories ||
+		permType == dto.ObjectTypeJobs {
 		return true
 	}
-	sub := fmt.Sprintf("%s/%d", PermissionTypeUsers, user.UserID)
+	sub := fmt.Sprintf("%s/%d", dto.ObjectTypeUsers, user.UserID)
 	obj := fmt.Sprintf("%s/%d", permType, id)
 	isAllowed, err := E.Enforce(sub, obj, string(actionType))
 	if err != nil {
 		return false
 	}
-	if !isAllowed && actionType == ActionTypeRead {
-		isAllowed, err = E.Enforce(sub, obj, string(ActionTypeAdmin))
+	if !isAllowed && actionType == dto.ActionTypeRead {
+		isAllowed, err = E.Enforce(sub, obj, string(dto.ActionTypeAdmin))
 		if err != nil {
 			return false
 		}
@@ -148,7 +214,7 @@ func Enforce(user dto.JWTClaims, permType PermissionType, id uint, actionType Ac
 func FilterTemplates(templates []*models.Template, user dto.JWTClaims) []*models.Template {
 	result := make([]*models.Template, 0)
 	for _, template := range templates {
-		if Enforce(user, PermissionTypeTemplate, template.ID, ActionTypeRead) {
+		if Enforce(user, dto.ObjectTypeTemplate, template.ID, dto.ActionTypeRead) {
 			result = append(result, template)
 		}
 	}
@@ -158,7 +224,7 @@ func FilterTemplates(templates []*models.Template, user dto.JWTClaims) []*models
 func FilterSshKeys(keys []*models.SshKey, user dto.JWTClaims) []*models.SshKey {
 	result := make([]*models.SshKey, 0)
 	for _, key := range keys {
-		if Enforce(user, PermissionTypeSshKey, key.ID, ActionTypeRead) {
+		if Enforce(user, dto.ObjectTypeSshKey, key.ID, dto.ActionTypeRead) {
 			result = append(result, key)
 		}
 	}
@@ -168,7 +234,7 @@ func FilterSshKeys(keys []*models.SshKey, user dto.JWTClaims) []*models.SshKey {
 func FilterInventories(inventories []*models.Inventory, user dto.JWTClaims) []*models.Inventory {
 	result := make([]*models.Inventory, 0)
 	for _, inventory := range inventories {
-		if Enforce(user, PermissionTypeInventory, inventory.ID, ActionTypeRead) {
+		if Enforce(user, dto.ObjectTypeInventory, inventory.ID, dto.ActionTypeRead) {
 			result = append(result, inventory)
 		}
 	}
@@ -178,7 +244,7 @@ func FilterInventories(inventories []*models.Inventory, user dto.JWTClaims) []*m
 func FilterApplications(applications []*models.Application, user dto.JWTClaims) []*models.Application {
 	result := make([]*models.Application, 0)
 	for _, app := range applications {
-		if Enforce(user, PermissionTypeApplications, app.ID, ActionTypeRead) {
+		if Enforce(user, dto.ObjectTypeApplications, app.ID, dto.ActionTypeRead) {
 			result = append(result, app)
 		}
 	}
