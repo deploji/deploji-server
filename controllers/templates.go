@@ -27,6 +27,7 @@ var GetTemplate = func(w http.ResponseWriter, r *http.Request) {
 		utils.Error(w, "Cannot load template", errors.New("not found"), http.StatusNotFound)
 		return
 	}
+	auth.InsertTemplatePermissions(template, services.GetJWTClaims(r))
 	json.NewEncoder(w).Encode(template)
 }
 
@@ -43,6 +44,7 @@ var SaveTemplate = func(w http.ResponseWriter, r *http.Request) {
 		utils.Error(w, "Cannot save template", err, http.StatusInternalServerError)
 		return
 	}
+	auth.AddOwnerPermissions(r, template)
 	json.NewEncoder(w).Encode(template)
 }
 

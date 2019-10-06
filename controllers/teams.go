@@ -5,10 +5,10 @@ import (
 	"errors"
 	"github.com/deploji/deploji-server/dto"
 	"github.com/deploji/deploji-server/models"
+	"github.com/deploji/deploji-server/services"
 	"github.com/deploji/deploji-server/services/auth"
 	"github.com/deploji/deploji-server/utils"
 	"github.com/gorilla/mux"
-	"log"
 	"net/http"
 	"strconv"
 )
@@ -41,7 +41,6 @@ var GetTeamUsers = func(w http.ResponseWriter, r *http.Request) {
 var SaveTeamUser = func(w http.ResponseWriter, r *http.Request) {
 	var user models.User
 	err := json.NewDecoder(r.Body).Decode(&user)
-	log.Println(err)
 	if nil != err {
 		utils.Error(w, "Cannot decode user", err, http.StatusInternalServerError)
 		return
@@ -82,7 +81,6 @@ var GetUserPermissions = func(w http.ResponseWriter, r *http.Request) {
 var SaveTeam = func(w http.ResponseWriter, r *http.Request) {
 	var team models.Team
 	err := json.NewDecoder(r.Body).Decode(&team)
-	log.Println(err)
 	if nil != err {
 		utils.Error(w, "Cannot decode team", err, http.StatusInternalServerError)
 		return
@@ -98,9 +96,12 @@ var SaveTeam = func(w http.ResponseWriter, r *http.Request) {
 var SavePermission = func(w http.ResponseWriter, r *http.Request) {
 	var permission dto.Permission
 	err := json.NewDecoder(r.Body).Decode(&permission)
-	log.Println(err)
 	if nil != err {
-		utils.Error(w, "Cannot decode permission", err, http.StatusInternalServerError)
+		utils.Error(w, "Cannot decode permission", err, http.StatusBadRequest)
+		return
+	}
+	if !auth.Enforce(services.GetJWTClaims(r), permission.ObjectType, permission.ObjectID, dto.ActionTypeAdmin) {
+		utils.Error(w, "Cannot save team", err, http.StatusForbidden)
 		return
 	}
 	err = auth.AddPermission(permission)
@@ -119,9 +120,12 @@ var GetPermissions = func(w http.ResponseWriter, r *http.Request) {
 var DeletePermission = func(w http.ResponseWriter, r *http.Request) {
 	var permission dto.Permission
 	err := json.NewDecoder(r.Body).Decode(&permission)
-	log.Println(err)
 	if nil != err {
-		utils.Error(w, "Cannot decode permission", err, http.StatusInternalServerError)
+		utils.Error(w, "Cannot decode permission", err, http.StatusBadRequest)
+		return
+	}
+	if !auth.Enforce(services.GetJWTClaims(r), permission.ObjectType, permission.ObjectID, dto.ActionTypeAdmin) {
+		utils.Error(w, "Cannot save team", err, http.StatusForbidden)
 		return
 	}
 	err = auth.RemovePermission(permission)

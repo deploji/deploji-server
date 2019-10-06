@@ -21,9 +21,10 @@ const (
 )
 
 const (
-	ActionTypeRead  ActionType = "GET"
-	ActionTypeWrite ActionType = "POST"
-	ActionTypeAdmin ActionType = "ADMIN"
+	ActionTypeRead  ActionType = "read"
+	ActionTypeWrite ActionType = "write"
+	ActionTypeAdmin ActionType = "admin"
+	ActionTypeUse   ActionType = "use"
 )
 
 type Permission struct {
@@ -33,5 +34,5 @@ type Permission struct {
 	ObjectType  ObjectType
 	ObjectID    uint
 	ObjectName  string
-	Action      string
+	Action      ActionType
 }

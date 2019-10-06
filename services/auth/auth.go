@@ -5,7 +5,10 @@ import (
 	"github.com/casbin/casbin/v2"
 	"github.com/deploji/deploji-server/dto"
 	"github.com/deploji/deploji-server/models"
+	"github.com/deploji/deploji-server/services"
 	"github.com/deploji/deploji-server/utils"
+	"net/http"
+	"reflect"
 	"strconv"
 	"strings"
 )
@@ -25,7 +28,7 @@ func getPermissionsForSubject(subjectType dto.SubjectType, subjectId uint) []dto
 			SubjectType: subjectType,
 			SubjectID:   subjectId,
 			SubjectName: subjectName,
-			Action:      permission[2],
+			Action:      dto.ActionType(permission[2]),
 		})
 	}
 	return permissions
@@ -49,7 +52,7 @@ func GetPermissions(filters []utils.Filter) []dto.Permission {
 			SubjectType: dto.SubjectType(subjectType),
 			SubjectID:   subjectId,
 			SubjectName: subjectName,
-			Action:      action,
+			Action:      dto.ActionType(action),
 		})
 	}
 	return permissions
@@ -169,7 +172,7 @@ func AddPermission(permission dto.Permission) error {
 	_, err := E.AddPolicy(
 		fmt.Sprintf("%s/%d", permission.SubjectType, permission.SubjectID),
 		fmt.Sprintf("%s/%d", permission.ObjectType, permission.ObjectID),
-		permission.Action)
+		string(permission.Action))
 	return err
 }
 
@@ -177,8 +180,46 @@ func RemovePermission(permission dto.Permission) error {
 	_, err := E.RemovePolicy(
 		fmt.Sprintf("%s/%d", permission.SubjectType, permission.SubjectID),
 		fmt.Sprintf("%s/%d", permission.ObjectType, permission.ObjectID),
-		permission.Action)
+		string(permission.Action))
 	return err
+}
+
+func AddOwnerPermissions(r *http.Request, object interface{}) {
+	user := services.GetJWTClaims(r)
+	if r.Method != http.MethodPost || user.Type == models.UserTypeAdmin {
+		return
+	}
+	var objectType dto.ObjectType
+	var objectID uint
+	t := reflect.TypeOf(object)
+	if t.ConvertibleTo(reflect.TypeOf(models.Inventory{})) {
+		objectType = dto.ObjectTypeInventory
+		objectID = object.(models.Inventory).ID
+	}
+	if t.ConvertibleTo(reflect.TypeOf(models.Application{})) {
+		objectType = dto.ObjectTypeApplications
+		objectID = object.(models.Application).ID
+	}
+	if t.ConvertibleTo(reflect.TypeOf(models.SshKey{})) {
+		objectType = dto.ObjectTypeSshKey
+		objectID = object.(models.SshKey).ID
+	}
+	if t.ConvertibleTo(reflect.TypeOf(models.Template{})) {
+		objectType = dto.ObjectTypeTemplate
+		objectID = object.(models.Template).ID
+	}
+	permission := dto.Permission{
+		SubjectType: dto.SubjectTypeUser,
+		SubjectID:   user.UserID,
+		ObjectType:  objectType,
+		ObjectID:    objectID,
+		Action:      dto.ActionTypeAdmin,
+	}
+	_ = AddPermission(permission)
+	permission.Action = dto.ActionTypeRead
+	_ = AddPermission(permission)
+	permission.Action = dto.ActionTypeWrite
+	_ = AddPermission(permission)
 }
 
 func GetImplicitPermissionsForUser(id uint) ([][]string, error) {
@@ -211,10 +252,35 @@ func Enforce(user dto.JWTClaims, permType dto.ObjectType, id uint, actionType dt
 	return isAllowed
 }
 
+func InsertTemplatePermissions(object *models.Template, user dto.JWTClaims) {
+	object.Read = Enforce(user, dto.ObjectTypeTemplate, object.ID, dto.ActionTypeRead)
+	object.Write = Enforce(user, dto.ObjectTypeTemplate, object.ID, dto.ActionTypeWrite)
+	object.Admin = Enforce(user, dto.ObjectTypeTemplate, object.ID, dto.ActionTypeAdmin)
+}
+
+func InsertApplicationPermissions(object *models.Application, user dto.JWTClaims) {
+	object.Read = Enforce(user, dto.ObjectTypeApplications, object.ID, dto.ActionTypeRead)
+	object.Write = Enforce(user, dto.ObjectTypeApplications, object.ID, dto.ActionTypeWrite)
+	object.Admin = Enforce(user, dto.ObjectTypeApplications, object.ID, dto.ActionTypeAdmin)
+}
+
+func InsertSshKeyPermissions(object *models.SshKey, user dto.JWTClaims) {
+	object.Read = Enforce(user, dto.ObjectTypeSshKey, object.ID, dto.ActionTypeRead)
+	object.Write = Enforce(user, dto.ObjectTypeSshKey, object.ID, dto.ActionTypeWrite)
+	object.Admin = Enforce(user, dto.ObjectTypeSshKey, object.ID, dto.ActionTypeAdmin)
+}
+
+func InsertInventoryPermissions(object *models.Inventory, user dto.JWTClaims) {
+	object.Read = Enforce(user, dto.ObjectTypeInventory, object.ID, dto.ActionTypeRead)
+	object.Write = Enforce(user, dto.ObjectTypeInventory, object.ID, dto.ActionTypeWrite)
+	object.Admin = Enforce(user, dto.ObjectTypeInventory, object.ID, dto.ActionTypeAdmin)
+}
+
 func FilterTemplates(templates []*models.Template, user dto.JWTClaims) []*models.Template {
 	result := make([]*models.Template, 0)
 	for _, template := range templates {
 		if Enforce(user, dto.ObjectTypeTemplate, template.ID, dto.ActionTypeRead) {
+			InsertTemplatePermissions(template, user)
 			result = append(result, template)
 		}
 	}
@@ -225,6 +291,7 @@ func FilterSshKeys(keys []*models.SshKey, user dto.JWTClaims) []*models.SshKey {
 	result := make([]*models.SshKey, 0)
 	for _, key := range keys {
 		if Enforce(user, dto.ObjectTypeSshKey, key.ID, dto.ActionTypeRead) {
+			InsertSshKeyPermissions(key, user)
 			result = append(result, key)
 		}
 	}
@@ -235,6 +302,7 @@ func FilterInventories(inventories []*models.Inventory, user dto.JWTClaims) []*m
 	result := make([]*models.Inventory, 0)
 	for _, inventory := range inventories {
 		if Enforce(user, dto.ObjectTypeInventory, inventory.ID, dto.ActionTypeRead) {
+			InsertInventoryPermissions(inventory, user)
 			result = append(result, inventory)
 		}
 	}
@@ -245,6 +313,7 @@ func FilterApplications(applications []*models.Application, user dto.JWTClaims) 
 	result := make([]*models.Application, 0)
 	for _, app := range applications {
 		if Enforce(user, dto.ObjectTypeApplications, app.ID, dto.ActionTypeRead) {
+			InsertApplicationPermissions(app, user)
 			result = append(result, app)
 		}
 	}

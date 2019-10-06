@@ -6,7 +6,6 @@ import (
 	"github.com/deploji/deploji-server/models"
 	"github.com/deploji/deploji-server/utils"
 	"github.com/gorilla/mux"
-	"log"
 	"net/http"
 	"strconv"
 )
@@ -34,9 +33,8 @@ var GetRepository = func(w http.ResponseWriter, r *http.Request) {
 var SaveRepositories = func(w http.ResponseWriter, r *http.Request) {
 	var repository models.Repository
 	err := json.NewDecoder(r.Body).Decode(&repository)
-	log.Println(err)
 	if nil != err {
-		utils.Error(w, "Cannot decode reposiitory", err, http.StatusInternalServerError)
+		utils.Error(w, "Cannot decode repository", err, http.StatusInternalServerError)
 		return
 	}
 	err = models.SaveRepository(&repository)

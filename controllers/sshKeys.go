@@ -25,6 +25,7 @@ var GetSshKey = func(w http.ResponseWriter, r *http.Request) {
 		utils.Error(w, "Cannot load key", errors.New("not found"), http.StatusNotFound)
 		return
 	}
+	auth.InsertSshKeyPermissions(key, services.GetJWTClaims(r))
 	json.NewEncoder(w).Encode(key)
 }
 
@@ -39,6 +40,7 @@ var SaveSshKeys = func(w http.ResponseWriter, r *http.Request) {
 		utils.Error(w, "Cannot save key", err, http.StatusInternalServerError)
 		return
 	}
+	auth.AddOwnerPermissions(r, key)
 	json.NewEncoder(w).Encode(key)
 }
 

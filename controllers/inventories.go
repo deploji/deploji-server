@@ -30,10 +30,11 @@ var GetInventory = func(w http.ResponseWriter, r *http.Request) {
 		utils.Error(w, "Cannot load inventory", errors.New("not found"), http.StatusNotFound)
 		return
 	}
+	auth.InsertInventoryPermissions(inventory, services.GetJWTClaims(r))
 	json.NewEncoder(w).Encode(inventory)
 }
 
-var SaveInventories = func(w http.ResponseWriter, r *http.Request) {
+var SaveInventory = func(w http.ResponseWriter, r *http.Request) {
 	var inventory models.Inventory
 	err := json.NewDecoder(r.Body).Decode(&inventory)
 	log.Println(err)
@@ -46,6 +47,7 @@ var SaveInventories = func(w http.ResponseWriter, r *http.Request) {
 		utils.Error(w, "Cannot save inventory", err, http.StatusInternalServerError)
 		return
 	}
+	auth.AddOwnerPermissions(r, inventory)
 	json.NewEncoder(w).Encode(inventory)
 }
 

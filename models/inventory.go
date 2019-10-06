@@ -6,6 +6,7 @@ import (
 
 type Inventory struct {
 	gorm.Model
+	Permissions
 	Name                   string `gorm:"type:text"`
 	Project                Project
 	ProjectID              uint

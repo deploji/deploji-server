@@ -30,6 +30,7 @@ var GetApplication = func(w http.ResponseWriter, r *http.Request) {
 		utils.Error(w, "Cannot load application", errors.New("not found"), http.StatusNotFound)
 		return
 	}
+	auth.InsertApplicationPermissions(application, services.GetJWTClaims(r))
 	json.NewEncoder(w).Encode(application)
 }
 
@@ -57,6 +58,7 @@ var SaveApplications = func(w http.ResponseWriter, r *http.Request) {
 		utils.Error(w, "Cannot save application", err, http.StatusInternalServerError)
 		return
 	}
+	auth.AddOwnerPermissions(r, application)
 	json.NewEncoder(w).Encode(application)
 }
 
