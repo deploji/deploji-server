@@ -14,6 +14,7 @@ type ApplicationInventory struct {
 	Name            string `gorm:"type:text"`
 	ApplicationUrls string `gorm:"type:text"`
 	ExtraVariables  string `gorm:"type:text"`
+	Playbook        string `gorm:"type:text"`
 	Key             SshKey
 	KeyID           uint
 }
