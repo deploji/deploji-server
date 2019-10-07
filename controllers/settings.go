@@ -10,7 +10,6 @@ import (
 
 var GetSettings = func(w http.ResponseWriter, r *http.Request) {
 	settings := models.GetSettingGroups()
-	w.Header().Add("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(settings)
 }
 
@@ -27,6 +26,5 @@ var SaveSettings = func(w http.ResponseWriter, r *http.Request) {
 		utils.Error(w, "Cannot save setting", err, http.StatusInternalServerError)
 		return
 	}
-	w.Header().Add("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(settings)
 }

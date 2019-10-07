@@ -6,6 +6,7 @@ import (
 
 type Application struct {
 	gorm.Model
+	Permissions
 	Name               string `gorm:"type:text"`
 	AnsibleName        string `gorm:"type:text"`
 	Project            Project

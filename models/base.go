@@ -17,7 +17,7 @@ import (
 
 var db *gorm.DB
 
-func init() {
+func InitDatabase() {
 	settings.Load()
 	conn, err := gorm.Open(settings.Database.Type, settings.Database.URI)
 	if err != nil {
@@ -36,6 +36,7 @@ func init() {
 		&JobLog{},
 		&Repository{},
 		&Template{},
+		&Team{},
 		&User{},
 		&Setting{},
 		&SettingGroup{})

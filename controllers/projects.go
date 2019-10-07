@@ -15,13 +15,11 @@ import (
 
 var GetProjects = func(w http.ResponseWriter, r *http.Request) {
 	projects := models.GetProjects()
-	w.Header().Add("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(projects)
 }
 
 var GetProjectsSyncStatus = func(w http.ResponseWriter, r *http.Request) {
 	jobs := models.GetLatestSCMPulls()
-	w.Header().Add("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(jobs)
 }
 
@@ -33,7 +31,6 @@ var GetProject = func(w http.ResponseWriter, r *http.Request) {
 		utils.Error(w, "Cannot load project", errors.New("not found"), http.StatusNotFound)
 		return
 	}
-	w.Header().Add("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(project)
 }
 
@@ -45,7 +42,6 @@ var GetProjectFiles = func(w http.ResponseWriter, r *http.Request) {
 		utils.Error(w, "Cannot load project files", err, http.StatusNotFound)
 		return
 	}
-	w.Header().Add("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(files)
 }
 
@@ -62,7 +58,6 @@ var SaveProjects = func(w http.ResponseWriter, r *http.Request) {
 		utils.Error(w, "Cannot save project", err, http.StatusInternalServerError)
 		return
 	}
-	w.Header().Add("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(project)
 }
 
@@ -79,7 +74,6 @@ var DeleteProject = func(w http.ResponseWriter, r *http.Request) {
 		utils.Error(w, "Cannot delete project", err, http.StatusInternalServerError)
 		return
 	}
-	w.Header().Add("Content-Type", "application/json")
 }
 
 var SynchronizeProject = func(w http.ResponseWriter, r *http.Request) {
@@ -94,7 +88,5 @@ var SynchronizeProject = func(w http.ResponseWriter, r *http.Request) {
 		utils.Error(w, "Cannot send job", err, http.StatusInternalServerError)
 		return
 	}
-
-	w.Header().Add("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(job)
 }

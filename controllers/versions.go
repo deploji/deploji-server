@@ -21,6 +21,5 @@ var GetVersions = func(w http.ResponseWriter, r *http.Request) {
 		utils.Error(w, "Cannot load versions", err, http.StatusInternalServerError)
 		return
 	}
-	w.Header().Add("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(versions)
 }

@@ -6,15 +6,23 @@ import (
 )
 
 type Password string
+type UserType string
+
+const (
+	UserTypeAdmin   UserType = "admin"
+	UserTypeAuditor UserType = "auditor"
+	UserTypeRegular UserType = "regular"
+)
 
 type User struct {
 	gorm.Model
-	Name string
-	Surname string
+	Name     string
+	Surname  string
 	Username string `gorm:"unique_index"`
-	Email string
+	Email    string
 	Password Password
 	IsActive bool
+	Type     UserType
 }
 
 // Marshaler ignores the field value completely.
@@ -57,7 +65,11 @@ func SaveUser(user *User) error {
 			return err
 		}
 	} else {
-		err := GetDB().Omit("created_at").Save(user).Error
+		db := GetDB().Omit("created_at")
+		if user.Password == "" {
+			db = db.Omit("password")
+		}
+		err := db.Save(user).Error
 		if err != nil {
 			return err
 		}

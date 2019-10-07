@@ -6,7 +6,6 @@ import (
 	"github.com/deploji/deploji-server/dto"
 	"github.com/deploji/deploji-server/models"
 	"github.com/deploji/deploji-server/settings"
-	"github.com/deploji/deploji-server/utils"
 	"github.com/dgrijalva/jwt-go"
 	"golang.org/x/crypto/bcrypt"
 	"gopkg.in/ldap.v3"
@@ -46,6 +45,9 @@ func AuthenticateLDAP(user *models.User, password string) (bool, error) {
 }
 
 func HashPassword(password models.Password) (models.Password, error) {
+	if password == "" {
+		return "", nil
+	}
 	bytes, err := bcrypt.GenerateFromPassword([]byte(password), 14)
 	return models.Password(bytes), err
 }
@@ -59,6 +61,7 @@ func GenerateToken(user *models.User) (*dto.JWT, error) {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 		"sub": user.Username,
 		"uid": user.ID,
+		"utp": user.Type,
 		"iat": time.Now().Unix(),
 		"exp": time.Now().Add(settings.Auth.TTL).Unix(),
 		"nbf": time.Now().Unix(),
@@ -72,9 +75,9 @@ func GenerateToken(user *models.User) (*dto.JWT, error) {
 }
 
 func RefreshToken(r *http.Request) (*dto.JWT, error) {
-	oldToken, err := ParseToken(tokenGetter(r))
+	oldToken, err := ParseToken(TokenGetter(r))
 	if err != nil && err.Error() != "Token is expired" {
-		log.Printf("Invalid token: %s", err )
+		log.Printf("Invalid token: %s", err)
 		return nil, fmt.Errorf("invalid token")
 	}
 
@@ -87,6 +90,7 @@ func RefreshToken(r *http.Request) (*dto.JWT, error) {
 		"sub": oldToken.Claims.(jwt.MapClaims)["sub"],
 		"uid": oldToken.Claims.(jwt.MapClaims)["uid"],
 		"iat": oldToken.Claims.(jwt.MapClaims)["iat"],
+		"utp": oldToken.Claims.(jwt.MapClaims)["utp"],
 		"exp": time.Now().Add(settings.Auth.TTL).Unix(),
 		"nbf": time.Now().Unix(),
 	})
@@ -147,31 +151,16 @@ func verifyExp(exp int64, now int64, required bool) bool {
 	return now <= exp
 }
 
-func JwtMiddleware(rw http.ResponseWriter, r *http.Request, next http.HandlerFunc) {
-	jwtToken := tokenGetter(r)
-	token, err := ParseToken(jwtToken)
-	if err != nil {
-		log.Printf("JWT error: %s", err)
-		utils.Error(rw, "Unauthorized", err, http.StatusUnauthorized)
-		return
-	}
-	if err := VerifyClaims(token, true, true, true); err != nil {
-		log.Printf("JWT error: %s", err)
-		utils.Error(rw, "Unauthorized", err, http.StatusUnauthorized)
-		return
-	}
-	next(rw, r)
-}
-
-func tokenGetter(r *http.Request) string {
+func TokenGetter(r *http.Request) string {
 	return strings.Replace(r.Header.Get("Authorization"), "Bearer ", "", 1)
 }
 
 func GetJWTClaims(r *http.Request) dto.JWTClaims {
-	token, _ := ParseToken(tokenGetter(r))
+	token, _ := ParseToken(TokenGetter(r))
 	claims := token.Claims.(jwt.MapClaims)
 	var jwtClaims dto.JWTClaims
 	jwtClaims.Sub = claims["sub"].(string)
 	jwtClaims.UserID = uint(claims["uid"].(float64))
+	jwtClaims.Type = models.UserType(claims["utp"].(string))
 	return jwtClaims
 }

@@ -9,6 +9,7 @@ type Key string
 
 type SshKey struct {
 	gorm.Model
+	Permissions
 	Title string `gorm:"type:text"`
 	Key   Key    `gorm:"type:text"`
 }
@@ -29,7 +30,7 @@ func GetSshKeys() []*SshKey {
 	return keys
 }
 
-func GetSshKey(id uint64) *SshKey {
+func GetSshKey(id uint) *SshKey {
 	var key SshKey
 	err := GetDB().First(&key, id).Error
 	if err != nil {

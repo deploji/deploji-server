@@ -6,7 +6,6 @@ import (
 	"github.com/deploji/deploji-server/models"
 	"github.com/deploji/deploji-server/utils"
 	"github.com/gorilla/mux"
-	"log"
 	"net/http"
 	"strconv"
 )
@@ -17,7 +16,6 @@ var GetRepositories = func(w http.ResponseWriter, r *http.Request) {
 		utils.Error(w, "Cannot load repositories", errors.New("not found"), http.StatusInternalServerError)
 		return
 	}
-	w.Header().Add("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(repositories)
 }
 
@@ -29,16 +27,14 @@ var GetRepository = func(w http.ResponseWriter, r *http.Request) {
 		utils.Error(w, "Cannot load repository", errors.New("not found"), http.StatusNotFound)
 		return
 	}
-	w.Header().Add("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(repository)
 }
 
 var SaveRepositories = func(w http.ResponseWriter, r *http.Request) {
 	var repository models.Repository
 	err := json.NewDecoder(r.Body).Decode(&repository)
-	log.Println(err)
 	if nil != err {
-		utils.Error(w, "Cannot decode reposiitory", err, http.StatusInternalServerError)
+		utils.Error(w, "Cannot decode repository", err, http.StatusInternalServerError)
 		return
 	}
 	err = models.SaveRepository(&repository)
@@ -46,7 +42,6 @@ var SaveRepositories = func(w http.ResponseWriter, r *http.Request) {
 		utils.Error(w, "Cannot save repository", err, http.StatusInternalServerError)
 		return
 	}
-	w.Header().Add("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(repository)
 }
 
@@ -63,5 +58,4 @@ var DeleteRepository = func(w http.ResponseWriter, r *http.Request) {
 		utils.Error(w, "Cannot delete repository", err, http.StatusInternalServerError)
 		return
 	}
-	w.Header().Add("Content-Type", "application/json")
 }

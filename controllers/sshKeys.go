@@ -4,6 +4,8 @@ import (
 	"encoding/json"
 	"errors"
 	"github.com/deploji/deploji-server/models"
+	"github.com/deploji/deploji-server/services"
+	"github.com/deploji/deploji-server/services/auth"
 	"github.com/deploji/deploji-server/utils"
 	"github.com/gorilla/mux"
 	"net/http"
@@ -11,20 +13,19 @@ import (
 )
 
 var GetSshKeys = func(w http.ResponseWriter, r *http.Request) {
-	keys := models.GetSshKeys()
-	w.Header().Add("Content-Type", "application/json")
+	keys := auth.FilterSshKeys(models.GetSshKeys(), services.GetJWTClaims(r))
 	json.NewEncoder(w).Encode(keys)
 }
 
 var GetSshKey = func(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id, _ := strconv.ParseUint(vars["id"], 10, 16)
-	key := models.GetSshKey(id)
+	key := models.GetSshKey(uint(id))
 	if key == nil {
 		utils.Error(w, "Cannot load key", errors.New("not found"), http.StatusNotFound)
 		return
 	}
-	w.Header().Add("Content-Type", "application/json")
+	auth.InsertSshKeyPermissions(key, services.GetJWTClaims(r))
 	json.NewEncoder(w).Encode(key)
 }
 
@@ -39,14 +40,14 @@ var SaveSshKeys = func(w http.ResponseWriter, r *http.Request) {
 		utils.Error(w, "Cannot save key", err, http.StatusInternalServerError)
 		return
 	}
-	w.Header().Add("Content-Type", "application/json")
+	auth.AddOwnerPermissions(r, key)
 	json.NewEncoder(w).Encode(key)
 }
 
 var DeleteSshKeys = func(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id, _ := strconv.ParseUint(vars["id"], 10, 16)
-	key := models.GetSshKey(id)
+	key := models.GetSshKey(uint(id))
 	if key == nil {
 		utils.Error(w, "Cannot load key", errors.New("not found"), http.StatusNotFound)
 		return
@@ -56,5 +57,4 @@ var DeleteSshKeys = func(w http.ResponseWriter, r *http.Request) {
 		utils.Error(w, "Cannot delete key", err, http.StatusInternalServerError)
 		return
 	}
-	w.Header().Add("Content-Type", "application/json")
 }

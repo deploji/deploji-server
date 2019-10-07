@@ -4,6 +4,8 @@ import (
 	"encoding/json"
 	"errors"
 	"github.com/deploji/deploji-server/models"
+	"github.com/deploji/deploji-server/services"
+	"github.com/deploji/deploji-server/services/auth"
 	"github.com/deploji/deploji-server/utils"
 	"github.com/gorilla/mux"
 	"log"
@@ -12,12 +14,11 @@ import (
 )
 
 var GetInventories = func(w http.ResponseWriter, r *http.Request) {
-	inventories := models.GetInventories()
+	inventories := auth.FilterInventories(models.GetInventories(), services.GetJWTClaims(r))
 	if inventories == nil {
 		utils.Error(w, "Cannot load inventories", errors.New("not found"), http.StatusInternalServerError)
 		return
 	}
-	w.Header().Add("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(inventories)
 }
 
@@ -29,11 +30,11 @@ var GetInventory = func(w http.ResponseWriter, r *http.Request) {
 		utils.Error(w, "Cannot load inventory", errors.New("not found"), http.StatusNotFound)
 		return
 	}
-	w.Header().Add("Content-Type", "application/json")
+	auth.InsertInventoryPermissions(inventory, services.GetJWTClaims(r))
 	json.NewEncoder(w).Encode(inventory)
 }
 
-var SaveInventories = func(w http.ResponseWriter, r *http.Request) {
+var SaveInventory = func(w http.ResponseWriter, r *http.Request) {
 	var inventory models.Inventory
 	err := json.NewDecoder(r.Body).Decode(&inventory)
 	log.Println(err)
@@ -46,7 +47,7 @@ var SaveInventories = func(w http.ResponseWriter, r *http.Request) {
 		utils.Error(w, "Cannot save inventory", err, http.StatusInternalServerError)
 		return
 	}
-	w.Header().Add("Content-Type", "application/json")
+	auth.AddOwnerPermissions(r, inventory)
 	json.NewEncoder(w).Encode(inventory)
 }
 
@@ -63,5 +64,4 @@ var DeleteInventory = func(w http.ResponseWriter, r *http.Request) {
 		utils.Error(w, "Cannot delete inventory", err, http.StatusInternalServerError)
 		return
 	}
-	w.Header().Add("Content-Type", "application/json")
 }

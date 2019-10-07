@@ -1,9 +1,12 @@
 package models
 
-import "github.com/jinzhu/gorm"
+import (
+	"github.com/jinzhu/gorm"
+)
 
 type Template struct {
 	gorm.Model
+	Permissions
 	Name                 string `gorm:"type:text"`
 	Project              Project
 	ProjectID            uint
