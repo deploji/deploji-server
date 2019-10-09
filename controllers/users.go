@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"github.com/deploji/deploji-server/models"
 	"github.com/deploji/deploji-server/services"
+	"github.com/deploji/deploji-server/services/auth"
 	"github.com/deploji/deploji-server/utils"
 	"github.com/gorilla/mux"
 	"log"
@@ -48,6 +49,10 @@ var SaveUser = func(w http.ResponseWriter, r *http.Request) {
 	user.Password, err = services.HashPassword(user.Password)
 	if err != nil {
 		utils.Error(w, "Error hashing password", fmt.Errorf(""), http.StatusInternalServerError)
+		return
+	}
+	if !auth.VerifyID(user.ID, r) {
+		utils.Error(w, "updating model ID is forbidden", errors.New(""), http.StatusForbidden)
 		return
 	}
 	err = models.SaveUser(&user)

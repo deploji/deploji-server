@@ -6,9 +6,9 @@ import (
 	"github.com/deploji/deploji-server/models"
 	"github.com/deploji/deploji-server/services"
 	"github.com/deploji/deploji-server/services/amqpService"
+	"github.com/deploji/deploji-server/services/auth"
 	"github.com/deploji/deploji-server/utils"
 	"github.com/gorilla/mux"
-	"log"
 	"net/http"
 	"strconv"
 )
@@ -48,9 +48,12 @@ var GetProjectFiles = func(w http.ResponseWriter, r *http.Request) {
 var SaveProjects = func(w http.ResponseWriter, r *http.Request) {
 	var project models.Project
 	err := json.NewDecoder(r.Body).Decode(&project)
-	log.Println(err)
 	if nil != err {
 		utils.Error(w, "Cannot decode project", err, http.StatusInternalServerError)
+		return
+	}
+	if !auth.VerifyID(project.ID, r) {
+		utils.Error(w, "updating model ID is forbidden", errors.New(""), http.StatusForbidden)
 		return
 	}
 	err = models.SaveProject(&project)

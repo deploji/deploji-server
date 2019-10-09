@@ -85,6 +85,10 @@ var SaveTeam = func(w http.ResponseWriter, r *http.Request) {
 		utils.Error(w, "Cannot decode team", err, http.StatusInternalServerError)
 		return
 	}
+	if !auth.VerifyID(team.ID, r) {
+		utils.Error(w, "updating model ID is forbidden", errors.New(""), http.StatusForbidden)
+		return
+	}
 	err = models.SaveTeam(&team)
 	if nil != err {
 		utils.Error(w, "Cannot save team", err, http.StatusInternalServerError)

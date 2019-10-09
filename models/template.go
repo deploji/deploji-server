@@ -6,7 +6,7 @@ import (
 
 type Template struct {
 	gorm.Model
-	Permissions
+	Permissions          Permissions
 	Name                 string `gorm:"type:text"`
 	Project              Project
 	ProjectID            uint

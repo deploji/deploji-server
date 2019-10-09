@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"github.com/deploji/deploji-server/models"
+	"github.com/deploji/deploji-server/services/auth"
 	"github.com/deploji/deploji-server/utils"
 	"github.com/gorilla/mux"
 	"net/http"
@@ -35,6 +36,10 @@ var SaveRepositories = func(w http.ResponseWriter, r *http.Request) {
 	err := json.NewDecoder(r.Body).Decode(&repository)
 	if nil != err {
 		utils.Error(w, "Cannot decode repository", err, http.StatusInternalServerError)
+		return
+	}
+	if !auth.VerifyID(repository.ID, r) {
+		utils.Error(w, "updating model ID is forbidden", errors.New(""), http.StatusForbidden)
 		return
 	}
 	err = models.SaveRepository(&repository)

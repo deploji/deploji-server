@@ -53,6 +53,10 @@ var SaveApplications = func(w http.ResponseWriter, r *http.Request) {
 		utils.Error(w, "Cannot decode application", err, http.StatusInternalServerError)
 		return
 	}
+	if !auth.VerifyID(application.ID, r) {
+		utils.Error(w, "updating model ID is forbidden", errors.New(""), http.StatusForbidden)
+		return
+	}
 	err = models.SaveApplication(&application)
 	if nil != err {
 		utils.Error(w, "Cannot save application", err, http.StatusInternalServerError)

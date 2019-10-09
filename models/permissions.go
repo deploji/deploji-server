@@ -6,3 +6,8 @@ type Permissions struct {
 	Admin bool
 	Use   bool
 }
+
+// Unmarshaler ignores the field value completely.
+func (*Permissions) UnmarshalJSON(data []byte) error {
+	return nil
+}

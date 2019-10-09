@@ -21,15 +21,24 @@ import (
 
 func main() {
 	ctx, done := context.WithCancel(context.Background())
-	uri := fmt.Sprintf("host=%s port=%s user=%s dbname=%s password=%s sslmode=disable", "localhost", "5432", "deploji", "deploji", "deploji")
-	a, err := gormadapter.NewAdapter("postgres", uri, true) // Your driver and data source.
+	models.InitDatabase()
+	uri := fmt.Sprintf("host=%s port=%s user=%s dbname=%s password=%s sslmode=disable",
+		settings.Database.Host,
+		settings.Database.Port,
+		settings.Database.Username,
+		settings.Database.Name,
+		settings.Database.Password)
+	a, err := gormadapter.NewAdapter("postgres", uri, true)
 	if err != nil {
 		log.Printf("NewAdapter error: %s", err)
 	}
-	auth.E, _ = casbin.NewSyncedEnforcer("rbac_model.conf", a)
+	auth.E, err = casbin.NewSyncedEnforcer("rbac_model.conf", a)
+	if err != nil {
+		log.Printf("NewSyncedEnforcer error: %s", err)
+		os.Exit(1)
+	}
 	auth.E.StartAutoLoadPolicy(time.Second * 60)
 
-	models.InitDatabase()
 	go func() {
 		amqpService.Publish(amqpService.Redial(ctx, os.Getenv("AMQP_URL")), amqpService.Jobs, "jobs")
 		done()
@@ -105,7 +114,6 @@ func main() {
 
 	authNegroni := negroni.New(
 		negroni.HandlerFunc(middleware.JwtMiddleware),
-		negroni.HandlerFunc(middleware.PutMiddleware),
 		negroni.HandlerFunc(middleware.AuthMiddleware),
 		negroni.HandlerFunc(middleware.HeadersMiddleware),
 		negroni.Wrap(authRouter))

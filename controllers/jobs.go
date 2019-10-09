@@ -7,6 +7,7 @@ import (
 	"github.com/deploji/deploji-server/models"
 	"github.com/deploji/deploji-server/services"
 	"github.com/deploji/deploji-server/services/amqpService"
+	"github.com/deploji/deploji-server/services/auth"
 	"github.com/deploji/deploji-server/utils"
 	"github.com/gorilla/mux"
 	"net/http"
@@ -42,6 +43,10 @@ var SaveJobs = func(w http.ResponseWriter, r *http.Request) {
 	err := json.NewDecoder(r.Body).Decode(&job)
 	if nil != err {
 		utils.Error(w, "Cannot decode job", err, http.StatusInternalServerError)
+		return
+	}
+	if !auth.VerifyID(job.ID, r) {
+		utils.Error(w, "updating model ID is forbidden", errors.New(""), http.StatusForbidden)
 		return
 	}
 	job.UserID = services.GetJWTClaims(r).UserID

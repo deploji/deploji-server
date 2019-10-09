@@ -7,6 +7,7 @@ import (
 	"github.com/deploji/deploji-server/models"
 	"github.com/deploji/deploji-server/services"
 	"github.com/deploji/deploji-server/utils"
+	"github.com/gorilla/mux"
 	"net/http"
 	"reflect"
 	"strconv"
@@ -252,28 +253,28 @@ func Enforce(user dto.JWTClaims, permType dto.ObjectType, id uint, actionType dt
 	return isAllowed
 }
 
+func createPermissions(user dto.JWTClaims, objectType dto.ObjectType, objectId uint) models.Permissions {
+	return models.Permissions{
+		Read:  Enforce(user, objectType, objectId, dto.ActionTypeRead),
+		Write: Enforce(user, objectType, objectId, dto.ActionTypeWrite),
+		Admin: Enforce(user, objectType, objectId, dto.ActionTypeAdmin),
+	}
+}
+
 func InsertTemplatePermissions(object *models.Template, user dto.JWTClaims) {
-	object.Read = Enforce(user, dto.ObjectTypeTemplate, object.ID, dto.ActionTypeRead)
-	object.Write = Enforce(user, dto.ObjectTypeTemplate, object.ID, dto.ActionTypeWrite)
-	object.Admin = Enforce(user, dto.ObjectTypeTemplate, object.ID, dto.ActionTypeAdmin)
+	object.Permissions = createPermissions(user, dto.ObjectTypeTemplate, object.ID)
 }
 
 func InsertApplicationPermissions(object *models.Application, user dto.JWTClaims) {
-	object.Read = Enforce(user, dto.ObjectTypeApplications, object.ID, dto.ActionTypeRead)
-	object.Write = Enforce(user, dto.ObjectTypeApplications, object.ID, dto.ActionTypeWrite)
-	object.Admin = Enforce(user, dto.ObjectTypeApplications, object.ID, dto.ActionTypeAdmin)
+	object.Permissions = createPermissions(user, dto.ObjectTypeApplications, object.ID)
 }
 
 func InsertSshKeyPermissions(object *models.SshKey, user dto.JWTClaims) {
-	object.Read = Enforce(user, dto.ObjectTypeSshKey, object.ID, dto.ActionTypeRead)
-	object.Write = Enforce(user, dto.ObjectTypeSshKey, object.ID, dto.ActionTypeWrite)
-	object.Admin = Enforce(user, dto.ObjectTypeSshKey, object.ID, dto.ActionTypeAdmin)
+	object.Permissions = createPermissions(user, dto.ObjectTypeSshKey, object.ID)
 }
 
 func InsertInventoryPermissions(object *models.Inventory, user dto.JWTClaims) {
-	object.Read = Enforce(user, dto.ObjectTypeInventory, object.ID, dto.ActionTypeRead)
-	object.Write = Enforce(user, dto.ObjectTypeInventory, object.ID, dto.ActionTypeWrite)
-	object.Admin = Enforce(user, dto.ObjectTypeInventory, object.ID, dto.ActionTypeAdmin)
+	object.Permissions = createPermissions(user, dto.ObjectTypeInventory, object.ID)
 }
 
 func FilterTemplates(templates []*models.Template, user dto.JWTClaims) []*models.Template {
@@ -318,4 +319,10 @@ func FilterApplications(applications []*models.Application, user dto.JWTClaims) 
 		}
 	}
 	return result
+}
+
+func VerifyID(objectId uint, r *http.Request) bool {
+	vars := mux.Vars(r)
+	id, _ := strconv.ParseUint(vars["id"], 10, 16)
+	return uint(id) == objectId
 }

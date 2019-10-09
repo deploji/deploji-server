@@ -9,9 +9,9 @@ type Key string
 
 type SshKey struct {
 	gorm.Model
-	Permissions
-	Title string `gorm:"type:text"`
-	Key   Key    `gorm:"type:text"`
+	Permissions Permissions
+	Title       string `gorm:"type:text"`
+	Key         Key    `gorm:"type:text"`
 }
 
 // Marshaler ignores the field value completely.

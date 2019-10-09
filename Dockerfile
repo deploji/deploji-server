@@ -13,6 +13,7 @@ RUN apk --no-cache add ca-certificates
 WORKDIR /root/
 COPY --from=builder /go/bin/deploji-server .
 COPY .env .
+COPY rbac_model.conf .
 COPY /migrations /root/migrations
 VOLUME /root/storage
 EXPOSE 8080
