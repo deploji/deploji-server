@@ -78,6 +78,7 @@ func main() {
 	authRouter.HandleFunc("/jobs/latest-deployments", controllers.GetLatestDeployments).Methods("GET")
 	authRouter.HandleFunc("/jobs/{id}", controllers.GetJob).Methods("GET")
 	authRouter.HandleFunc("/jobs/{id}/logs", controllers.GetJobLogs).Methods("GET")
+	authRouter.HandleFunc("/notification-channels", controllers.GetNotificationChannels).Methods("GET")
 
 	adminRouter := mux.NewRouter()
 	adminRouter.HandleFunc("/teams", controllers.SaveTeam).Methods("POST")
@@ -107,6 +108,10 @@ func main() {
 	adminRouter.HandleFunc("/projects/{id}", controllers.DeleteProject).Methods("DELETE")
 	adminRouter.HandleFunc("/projects/{id}/synchronize", controllers.SynchronizeProject).Methods("POST")
 	adminRouter.HandleFunc("/projects/{id}/files", controllers.GetProjectFiles).Methods("GET")
+	adminRouter.HandleFunc("/notification-channels", controllers.SaveNotificationChannels).Methods("POST")
+	adminRouter.HandleFunc("/notification-channels/{id}", controllers.SaveNotificationChannels).Methods("PUT")
+	adminRouter.HandleFunc("/notification-channels/{id}", controllers.GetNotificationChannel).Methods("GET")
+	adminRouter.HandleFunc("/notification-channels/{id}", controllers.DeleteNotificationChannel).Methods("DELETE")
 
 	openRouter := mux.NewRouter()
 	openRouter.HandleFunc("/auth/authenticate", controllers.Authenticate).Methods("POST")
