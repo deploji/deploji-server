@@ -2,6 +2,7 @@ package services
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"github.com/deploji/deploji-server/dto"
 	"github.com/deploji/deploji-server/models"
@@ -86,11 +87,16 @@ func RefreshToken(r *http.Request) (*dto.JWT, error) {
 		return nil, err
 	}
 
+	user := models.GetUserByUsername(oldToken.Claims.(jwt.MapClaims)["sub"].(string))
+	if user == nil || user.IsActive == false {
+		return nil, errors.New("user not found or inactive")
+	}
+
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
-		"sub": oldToken.Claims.(jwt.MapClaims)["sub"],
-		"uid": oldToken.Claims.(jwt.MapClaims)["uid"],
+		"sub": user.Username,
+		"uid": user.ID,
 		"iat": oldToken.Claims.(jwt.MapClaims)["iat"],
-		"utp": oldToken.Claims.(jwt.MapClaims)["utp"],
+		"utp": user.Type,
 		"exp": time.Now().Add(settings.Auth.TTL).Unix(),
 		"nbf": time.Now().Unix(),
 	})
