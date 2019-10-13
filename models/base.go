@@ -41,6 +41,8 @@ func InitDatabase() {
 		&Setting{},
 		&NotificationChannel{},
 		&ApplicationNotification{},
+		&TemplateNotification{},
+		&ProjectNotification{},
 		&SettingGroup{})
 
 	driver, err := postgres.WithInstance(db.DB(), &postgres.Config{})

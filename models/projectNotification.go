@@ -1,31 +1,31 @@
 package models
 
-type ApplicationNotification struct {
-	ApplicationID         uint `gorm:"primary_key"`
+type ProjectNotification struct {
+	ProjectID             uint `gorm:"primary_key"`
 	NotificationChannel   NotificationChannel
 	NotificationChannelID uint `gorm:"primary_key"`
 	SuccessEnabled        bool
 	FailEnabled           bool
 }
 
-func GetApplicationNotifications(id uint) *[]ApplicationNotification {
+func GetProjectNotifications(id uint) *[]ProjectNotification {
 	var notificationChannels []NotificationChannel
 	if err := GetDB().Find(&notificationChannels).Error;
 		err != nil {
 		return nil
 	}
-	var notifications []ApplicationNotification
+	var notifications []ProjectNotification
 	if err := GetDB().
 		Preload("NotificationChannel").
-		Where("application_id=?", id).
+		Where("project_id=?", id).
 		Find(&notifications).Error;
 		err != nil {
 		return nil
 	}
-	notificationsMap := make(map[uint]ApplicationNotification)
+	notificationsMap := make(map[uint]ProjectNotification)
 	for _, v := range notificationChannels {
-		notificationsMap[v.ID] = ApplicationNotification{
-			ApplicationID:         id,
+		notificationsMap[v.ID] = ProjectNotification{
+			ProjectID:             id,
 			NotificationChannel:   v,
 			NotificationChannelID: v.ID,
 			SuccessEnabled:        false,
@@ -35,7 +35,7 @@ func GetApplicationNotifications(id uint) *[]ApplicationNotification {
 	for _, v := range notifications {
 		notificationsMap[v.NotificationChannelID] = v
 	}
-	notifications = make([]ApplicationNotification, 0)
+	notifications = make([]ProjectNotification, 0)
 	for _, v := range notificationsMap {
 		notifications = append(notifications, v)
 	}
@@ -43,7 +43,7 @@ func GetApplicationNotifications(id uint) *[]ApplicationNotification {
 	return &notifications
 }
 
-func SaveApplicationNotification(notification *ApplicationNotification) error {
+func SaveProjectNotification(notification *ProjectNotification) error {
 	if err := GetDB().Save(notification).Error; err != nil {
 		return err
 	}

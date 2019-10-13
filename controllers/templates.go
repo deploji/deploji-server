@@ -66,3 +66,29 @@ var DeleteTemplate = func(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 }
+
+var GetTemplateNotifications = func(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	id, _ := strconv.ParseUint(vars["id"], 10, 16)
+	notifications := models.GetTemplateNotifications(uint(id))
+	if notifications == nil {
+		utils.Error(w, "Cannot load notifications", errors.New("not found"), http.StatusNotFound)
+		return
+	}
+	w.Header().Add("Content-Type", "inventory/json")
+	json.NewEncoder(w).Encode(notifications)
+}
+
+var SaveTemplateNotification = func(w http.ResponseWriter, r *http.Request) {
+	var templateNotification models.TemplateNotification
+	err := json.NewDecoder(r.Body).Decode(&templateNotification)
+	if nil != err {
+		utils.Error(w, "Cannot decode templateNotification", err, http.StatusInternalServerError)
+		return
+	}
+	if err := models.SaveTemplateNotification(&templateNotification); nil != err {
+		utils.Error(w, "Cannot save templateNotification", err, http.StatusInternalServerError)
+		return
+	}
+	json.NewEncoder(w).Encode(templateNotification)
+}
