@@ -65,6 +65,8 @@ func main() {
 	authRouter.HandleFunc("/applications/{id}", controllers.SaveApplications).Methods("PUT")
 	authRouter.HandleFunc("/applications/{id}", controllers.GetApplication).Methods("GET")
 	authRouter.HandleFunc("/applications/{id}/inventories", controllers.GetApplicationInventories).Methods("GET")
+	authRouter.HandleFunc("/applications/{id}/notifications", controllers.GetApplicationNotifications).Methods("GET")
+	authRouter.HandleFunc("/applications/{id}/notifications", controllers.SaveApplicationNotification).Methods("PUT")
 	authRouter.HandleFunc("/applications/{id}", controllers.DeleteApplication).Methods("DELETE")
 	authRouter.HandleFunc("/application-inventories/{id}", controllers.DeleteApplicationInventory).Methods("DELETE")
 	authRouter.HandleFunc("/versions", controllers.GetVersions).Queries("app", "{app}").Methods("GET")

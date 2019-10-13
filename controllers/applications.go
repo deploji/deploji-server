@@ -46,6 +46,32 @@ var GetApplicationInventories = func(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(inventories)
 }
 
+var GetApplicationNotifications = func(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	id, _ := strconv.ParseUint(vars["id"], 10, 16)
+	inventories := models.GetApplicationNotifications(uint(id))
+	if inventories == nil {
+		utils.Error(w, "Cannot load notifications", errors.New("not found"), http.StatusNotFound)
+		return
+	}
+	w.Header().Add("Content-Type", "inventory/json")
+	json.NewEncoder(w).Encode(inventories)
+}
+
+var SaveApplicationNotification = func(w http.ResponseWriter, r *http.Request) {
+	var applicationNotification models.ApplicationNotification
+	err := json.NewDecoder(r.Body).Decode(&applicationNotification)
+	if nil != err {
+		utils.Error(w, "Cannot decode applicationNotification", err, http.StatusInternalServerError)
+		return
+	}
+	if err := models.SaveApplicationNotification(&applicationNotification); nil != err {
+		utils.Error(w, "Cannot save applicationNotification", err, http.StatusInternalServerError)
+		return
+	}
+	json.NewEncoder(w).Encode(applicationNotification)
+}
+
 var SaveApplications = func(w http.ResponseWriter, r *http.Request) {
 	var application models.Application
 	err := json.NewDecoder(r.Body).Decode(&application)
