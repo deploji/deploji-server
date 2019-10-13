@@ -1,7 +1,7 @@
 package services
 
 import (
-	httpmock "gopkg.in/jarcoal/httpmock.v1"
+    "github.com/jarcoal/httpmock"
 	"testing"
 )
 

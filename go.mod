@@ -17,6 +17,7 @@ require (
 	github.com/gogo/protobuf v1.2.2-0.20190730201129-28a6bbf47e48 // indirect
 	github.com/golang-migrate/migrate/v4 v4.5.0
 	github.com/gorilla/mux v1.7.3
+	github.com/jarcoal/httpmock v1.0.4
 	github.com/jinzhu/gorm v1.9.10
 	github.com/joho/godotenv v1.3.0
 	github.com/lib/pq v1.2.0 // indirect
