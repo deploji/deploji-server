@@ -13,7 +13,7 @@ func Message(status bool, message string) (map[string]interface{}) {
 
 func Error(w http.ResponseWriter, message string,  err error, status int) {
 	log.Printf(fmt.Sprintf("%s: %%s", message), err)
-	http.Error(w, http.StatusText(status), status)
+	http.Error(w, fmt.Sprintf("%s: %s", http.StatusText(status), message), status)
 }
 
 type Page struct {

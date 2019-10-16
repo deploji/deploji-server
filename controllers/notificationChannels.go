@@ -34,8 +34,7 @@ var SaveNotificationChannels = func(w http.ResponseWriter, r *http.Request) {
 		utils.Error(w, "Cannot decode notificationChannel", err, http.StatusInternalServerError)
 		return
 	}
-	if !auth.VerifyID(notificationChannel.ID, r) {
-		utils.Error(w, "updating model ID is forbidden", errors.New(""), http.StatusForbidden)
+	if !auth.VerifyID(notificationChannel.ID, r, w, "id") {
 		return
 	}
 	err = models.SaveNotificationChannel(&notificationChannel)

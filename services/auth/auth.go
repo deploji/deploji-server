@@ -1,6 +1,7 @@
 package auth
 
 import (
+	"errors"
 	"fmt"
 	"github.com/casbin/casbin/v2"
 	"github.com/deploji/deploji-server/dto"
@@ -321,8 +322,12 @@ func FilterApplications(applications []*models.Application, user dto.JWTClaims) 
 	return result
 }
 
-func VerifyID(objectId uint, r *http.Request) bool {
+func VerifyID(objectId uint, r *http.Request, w http.ResponseWriter, idName string) bool {
 	vars := mux.Vars(r)
-	id, _ := strconv.ParseUint(vars["id"], 10, 16)
-	return uint(id) == objectId
+	id, _ := strconv.ParseUint(vars[idName], 10, 16)
+	if uint(id) != objectId {
+		utils.Error(w, "request path id does not match request body id", errors.New(""), http.StatusForbidden)
+		return false
+	}
+	return true
 }

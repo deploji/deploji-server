@@ -39,7 +39,7 @@ var SaveTemplate = func(w http.ResponseWriter, r *http.Request) {
 		utils.Error(w, "Cannot decode template", err, http.StatusInternalServerError)
 		return
 	}
-	if !auth.VerifyID(template.ID, r) {
+	if !auth.VerifyID(template.ID, r, w, "id") {
 		utils.Error(w, "updating model ID is forbidden", errors.New(""), http.StatusForbidden)
 		return
 	}

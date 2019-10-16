@@ -45,8 +45,7 @@ var SaveJobs = func(w http.ResponseWriter, r *http.Request) {
 		utils.Error(w, "Cannot decode job", err, http.StatusInternalServerError)
 		return
 	}
-	if !auth.VerifyID(job.ID, r) {
-		utils.Error(w, "updating model ID is forbidden", errors.New(""), http.StatusForbidden)
+	if !auth.VerifyID(job.ID, r, w, "id") {
 		return
 	}
 	job.UserID = services.GetJWTClaims(r).UserID

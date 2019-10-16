@@ -21,6 +21,7 @@ type Template struct {
 	PromptProject        bool
 	PromptExtraVariables bool
 	ExtraVariables       string `gorm:"type:text"`
+	Survey               Survey
 }
 
 func GetTemplates() []*Template {
@@ -34,7 +35,12 @@ func GetTemplates() []*Template {
 
 func GetTemplate(id uint) *Template {
 	var template Template
-	err := GetDB().Preload("Project").Preload("Inventory").Preload("SshKey").First(&template, id).Error
+	err := GetDB().
+		Preload("Project").
+		Preload("Inventory").
+		Preload("Survey").
+		Preload("SshKey").
+		First(&template, id).Error
 	if err != nil {
 		return nil
 	}

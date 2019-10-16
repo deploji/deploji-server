@@ -42,8 +42,7 @@ var SaveInventory = func(w http.ResponseWriter, r *http.Request) {
 		utils.Error(w, "Cannot decode inventory", err, http.StatusInternalServerError)
 		return
 	}
-	if !auth.VerifyID(inventory.ID, r) {
-		utils.Error(w, "updating model ID is forbidden", errors.New(""), http.StatusForbidden)
+	if !auth.VerifyID(inventory.ID, r, w, "id") {
 		return
 	}
 	err = models.SaveInventory(&inventory)

@@ -36,8 +36,7 @@ var SaveSshKeys = func(w http.ResponseWriter, r *http.Request) {
 		utils.Error(w, "Cannot decode key", err, http.StatusInternalServerError)
 		return
 	}
-	if !auth.VerifyID(key.ID, r) {
-		utils.Error(w, "updating model ID is forbidden", errors.New(""), http.StatusForbidden)
+	if !auth.VerifyID(key.ID, r, w, "id") {
 		return
 	}
 	if err := models.SaveSshKey(&key); nil != err {
