@@ -40,7 +40,6 @@ var SaveTemplate = func(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if !auth.VerifyID(template.ID, r, w, "id") {
-		utils.Error(w, "updating model ID is forbidden", errors.New(""), http.StatusForbidden)
 		return
 	}
 	err = models.SaveTemplate(&template)

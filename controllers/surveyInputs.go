@@ -61,7 +61,7 @@ var SaveSurveyInput = func(w http.ResponseWriter, r *http.Request) {
 
 var DeleteSurveyInput = func(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
-	id, _ := strconv.ParseUint(vars["id"], 10, 16)
+	id, _ := strconv.ParseUint(vars["inputId"], 10, 16)
 	surveyInput := models.GetSurveyInput(uint(id))
 	if surveyInput == nil {
 		utils.Error(w, "Cannot load surveyInput", errors.New("not found"), http.StatusNotFound)

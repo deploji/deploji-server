@@ -58,6 +58,15 @@ services:
       - "traefik.port=80"
       - "traefik.frontend.rule=PathPrefixStrip:/"
 
+  mailhog:
+    image: mailhog/mailhog
+    ports:
+      - 1025:1025
+    labels:
+      - "traefik.enable=true"
+      - "traefik.port=8025"
+      - "traefik.frontend.rule=Host:mailhog.localhost"
+
   traefik:
     image: traefik:1.7
     command:

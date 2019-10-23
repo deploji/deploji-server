@@ -32,7 +32,6 @@ func GetSurveyInputsByTemplateID(id uint) (*[]SurveyInput, error) {
 func GetSurveyInput(id uint) *SurveyInput {
 	var surveyInput SurveyInput
 	err := GetDB().
-		Preload("Survey").
 		First(&surveyInput, id).Error
 	if err != nil {
 		return nil
