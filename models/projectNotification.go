@@ -10,16 +10,14 @@ type ProjectNotification struct {
 
 func GetProjectNotifications(id uint) *[]ProjectNotification {
 	var notificationChannels []NotificationChannel
-	if err := GetDB().Find(&notificationChannels).Error;
-		err != nil {
+	if err := GetDB().Find(&notificationChannels).Error; err != nil {
 		return nil
 	}
 	var notifications []ProjectNotification
 	if err := GetDB().
 		Preload("NotificationChannel").
 		Where("project_id=?", id).
-		Find(&notifications).Error;
-		err != nil {
+		Find(&notifications).Error; err != nil {
 		return nil
 	}
 	notificationsMap := make(map[uint]ProjectNotification)
@@ -45,6 +43,16 @@ func GetProjectNotifications(id uint) *[]ProjectNotification {
 
 func SaveProjectNotification(notification *ProjectNotification) error {
 	if err := GetDB().Save(notification).Error; err != nil {
+		return err
+	}
+	if err := GetDB().Preload("NotificationChannel").Find(notification).Error; err != nil {
+		return err
+	}
+	return nil
+}
+
+func UpdateProjectNotification(notification *ProjectNotification) error {
+	if err := GetDB().Model(notification).Updates(*notification).Error; err != nil {
 		return err
 	}
 	if err := GetDB().Preload("NotificationChannel").Find(notification).Error; err != nil {

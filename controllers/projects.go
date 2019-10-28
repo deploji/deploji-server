@@ -118,3 +118,17 @@ var SaveProjectNotification = func(w http.ResponseWriter, r *http.Request) {
 	}
 	json.NewEncoder(w).Encode(projectNotification)
 }
+
+var UpdateProjectNotification = func(w http.ResponseWriter, r *http.Request) {
+	var projectNotification models.ProjectNotification
+	err := json.NewDecoder(r.Body).Decode(&projectNotification)
+	if nil != err {
+		utils.Error(w, "Cannot decode projectNotification", err, http.StatusInternalServerError)
+		return
+	}
+	if err := models.UpdateProjectNotification(&projectNotification); nil != err {
+		utils.Error(w, "Cannot save projectNotification", err, http.StatusInternalServerError)
+		return
+	}
+	json.NewEncoder(w).Encode(projectNotification)
+}

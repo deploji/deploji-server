@@ -91,3 +91,17 @@ var SaveTemplateNotification = func(w http.ResponseWriter, r *http.Request) {
 	}
 	json.NewEncoder(w).Encode(templateNotification)
 }
+
+var UpdateTemplateNotification = func(w http.ResponseWriter, r *http.Request) {
+	var templateNotification models.TemplateNotification
+	err := json.NewDecoder(r.Body).Decode(&templateNotification)
+	if nil != err {
+		utils.Error(w, "Cannot decode templateNotification", err, http.StatusInternalServerError)
+		return
+	}
+	if err := models.UpdateTemplateNotification(&templateNotification); nil != err {
+		utils.Error(w, "Cannot save templateNotification", err, http.StatusInternalServerError)
+		return
+	}
+	json.NewEncoder(w).Encode(templateNotification)
+}

@@ -10,16 +10,14 @@ type TemplateNotification struct {
 
 func GetTemplateNotifications(id uint) *[]TemplateNotification {
 	var notificationChannels []NotificationChannel
-	if err := GetDB().Find(&notificationChannels).Error;
-		err != nil {
+	if err := GetDB().Find(&notificationChannels).Error; err != nil {
 		return nil
 	}
 	var notifications []TemplateNotification
 	if err := GetDB().
 		Preload("NotificationChannel").
 		Where("template_id=?", id).
-		Find(&notifications).Error;
-		err != nil {
+		Find(&notifications).Error; err != nil {
 		return nil
 	}
 	notificationsMap := make(map[uint]TemplateNotification)
@@ -45,6 +43,16 @@ func GetTemplateNotifications(id uint) *[]TemplateNotification {
 
 func SaveTemplateNotification(notification *TemplateNotification) error {
 	if err := GetDB().Save(notification).Error; err != nil {
+		return err
+	}
+	if err := GetDB().Preload("NotificationChannel").Find(notification).Error; err != nil {
+		return err
+	}
+	return nil
+}
+
+func UpdateTemplateNotification(notification *TemplateNotification) error {
+	if err := GetDB().Model(notification).Updates(*notification).Error; err != nil {
 		return err
 	}
 	if err := GetDB().Preload("NotificationChannel").Find(notification).Error; err != nil {
