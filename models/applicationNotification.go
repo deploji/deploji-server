@@ -10,14 +10,16 @@ type ApplicationNotification struct {
 
 func GetApplicationNotifications(id uint) *[]ApplicationNotification {
 	var notificationChannels []NotificationChannel
-	if err := GetDB().Find(&notificationChannels).Error; err != nil {
+	if err := GetDB().Find(&notificationChannels).Error;
+		err != nil {
 		return nil
 	}
 	var notifications []ApplicationNotification
 	if err := GetDB().
 		Preload("NotificationChannel").
 		Where("application_id=?", id).
-		Find(&notifications).Error; err != nil {
+		Find(&notifications).Error;
+		err != nil {
 		return nil
 	}
 	notificationsMap := make(map[uint]ApplicationNotification)
@@ -43,16 +45,6 @@ func GetApplicationNotifications(id uint) *[]ApplicationNotification {
 
 func SaveApplicationNotification(notification *ApplicationNotification) error {
 	if err := GetDB().Save(notification).Error; err != nil {
-		return err
-	}
-	if err := GetDB().Preload("NotificationChannel").Find(notification).Error; err != nil {
-		return err
-	}
-	return nil
-}
-
-func UpdateApplicationNotification(notification *ApplicationNotification) error {
-	if err := GetDB().Model(notification).Updates(*notification).Error; err != nil {
 		return err
 	}
 	if err := GetDB().Preload("NotificationChannel").Find(notification).Error; err != nil {

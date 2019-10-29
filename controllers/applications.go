@@ -72,20 +72,6 @@ var SaveApplicationNotification = func(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(applicationNotification)
 }
 
-var UpdateApplicationNotification = func(w http.ResponseWriter, r *http.Request) {
-	var applicationNotification models.ApplicationNotification
-	err := json.NewDecoder(r.Body).Decode(&applicationNotification)
-	if nil != err {
-		utils.Error(w, "Cannot decode applicationNotification", err, http.StatusInternalServerError)
-		return
-	}
-	if err := models.UpdateApplicationNotification(&applicationNotification); nil != err {
-		utils.Error(w, "Cannot save applicationNotification", err, http.StatusInternalServerError)
-		return
-	}
-	json.NewEncoder(w).Encode(applicationNotification)
-}
-
 var SaveApplications = func(w http.ResponseWriter, r *http.Request) {
 	var application models.Application
 	err := json.NewDecoder(r.Body).Decode(&application)
