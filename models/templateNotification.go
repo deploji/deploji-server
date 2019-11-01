@@ -2,10 +2,7 @@ package models
 
 type TemplateNotification struct {
 	TemplateID            uint `gorm:"primary_key"`
-	NotificationChannel   NotificationChannel
-	NotificationChannelID uint `gorm:"primary_key"`
-	SuccessEnabled        bool
-	FailEnabled           bool
+	RelatedNotification
 }
 
 func GetTemplateNotifications(id uint) *[]TemplateNotification {
@@ -27,10 +24,12 @@ func GetTemplateNotifications(id uint) *[]TemplateNotification {
 	for _, v := range notificationChannels {
 		notificationsMap[v.ID] = TemplateNotification{
 			TemplateID:            id,
-			NotificationChannel:   v,
-			NotificationChannelID: v.ID,
-			SuccessEnabled:        false,
-			FailEnabled:           false,
+			RelatedNotification: RelatedNotification{
+				NotificationChannel:   v,
+				NotificationChannelID: v.ID,
+				SuccessEnabled:        false,
+				FailEnabled:           false,
+			},
 		}
 	}
 	for _, v := range notifications {

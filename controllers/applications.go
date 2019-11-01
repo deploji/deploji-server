@@ -49,7 +49,7 @@ var GetApplicationInventories = func(w http.ResponseWriter, r *http.Request) {
 var GetApplicationNotifications = func(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id, _ := strconv.ParseUint(vars["id"], 10, 16)
-	notifications := models.GetApplicationNotifications(uint(id))
+	notifications := auth.FilterApplicationNotifications(models.GetApplicationNotifications(uint(id)), services.GetJWTClaims(r))
 	if notifications == nil {
 		utils.Error(w, "Cannot load notifications", errors.New("not found"), http.StatusNotFound)
 		return

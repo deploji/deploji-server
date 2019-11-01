@@ -11,6 +11,7 @@ type NotificationChannel struct {
 	Type        string `gorm:"type:text"`
 	Recipients  string `gorm:"type:text"`
 	WebhookURL  string `gorm:"type:text"`
+	UserID      uint
 }
 
 func GetNotificationChannels() []*NotificationChannel {

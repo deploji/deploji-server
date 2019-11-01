@@ -28,6 +28,8 @@ type Job struct {
 	ProjectID      uint
 	Inventory      Inventory
 	InventoryID    uint
+	Template       Template
+	TemplateID     uint
 	Key            SshKey
 	KeyID          uint
 	User           User

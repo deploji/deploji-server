@@ -60,8 +60,11 @@ func GetUserByUsername(username string) *User {
 
 func SaveUser(user *User) error {
 	if GetDB().NewRecord(user) {
-		err := GetDB().Create(user).Error
-		if err != nil {
+		if err := GetDB().Create(user).Error; err != nil {
+			return err
+		}
+		notificationChannel := NotificationChannel{Type: "user_email", UserID: user.ID, Name: "My E-mail"}
+		if err := GetDB().Create(&notificationChannel).Error; err != nil {
 			return err
 		}
 	} else {

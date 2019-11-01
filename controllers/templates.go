@@ -69,7 +69,7 @@ var DeleteTemplate = func(w http.ResponseWriter, r *http.Request) {
 var GetTemplateNotifications = func(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id, _ := strconv.ParseUint(vars["id"], 10, 16)
-	notifications := models.GetTemplateNotifications(uint(id))
+	notifications := auth.FilterTemplateNotifications(models.GetTemplateNotifications(uint(id)), services.GetJWTClaims(r))
 	if notifications == nil {
 		utils.Error(w, "Cannot load notifications", errors.New("not found"), http.StatusNotFound)
 		return

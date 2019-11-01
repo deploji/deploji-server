@@ -2,10 +2,7 @@ package models
 
 type ProjectNotification struct {
 	ProjectID             uint `gorm:"primary_key"`
-	NotificationChannel   NotificationChannel
-	NotificationChannelID uint `gorm:"primary_key"`
-	SuccessEnabled        bool
-	FailEnabled           bool
+	RelatedNotification
 }
 
 func GetProjectNotifications(id uint) *[]ProjectNotification {
@@ -27,10 +24,12 @@ func GetProjectNotifications(id uint) *[]ProjectNotification {
 	for _, v := range notificationChannels {
 		notificationsMap[v.ID] = ProjectNotification{
 			ProjectID:             id,
-			NotificationChannel:   v,
-			NotificationChannelID: v.ID,
-			SuccessEnabled:        false,
-			FailEnabled:           false,
+			RelatedNotification: RelatedNotification{
+				NotificationChannel:   v,
+				NotificationChannelID: v.ID,
+				SuccessEnabled:        false,
+				FailEnabled:           false,
+			},
 		}
 	}
 	for _, v := range notifications {

@@ -1,11 +1,8 @@
 package models
 
 type ApplicationNotification struct {
-	ApplicationID         uint `gorm:"primary_key"`
-	NotificationChannel   NotificationChannel
-	NotificationChannelID uint `gorm:"primary_key"`
-	SuccessEnabled        bool
-	FailEnabled           bool
+	ApplicationID uint `gorm:"primary_key"`
+	RelatedNotification
 }
 
 func GetApplicationNotifications(id uint) *[]ApplicationNotification {
@@ -26,11 +23,13 @@ func GetApplicationNotifications(id uint) *[]ApplicationNotification {
 	notificationsMap := make(map[uint]ApplicationNotification)
 	for _, v := range notificationChannels {
 		notificationsMap[v.ID] = ApplicationNotification{
-			ApplicationID:         id,
-			NotificationChannel:   v,
-			NotificationChannelID: v.ID,
-			SuccessEnabled:        false,
-			FailEnabled:           false,
+			ApplicationID: id,
+			RelatedNotification: RelatedNotification{
+				NotificationChannel:   v,
+				NotificationChannelID: v.ID,
+				SuccessEnabled:        false,
+				FailEnabled:           false,
+			},
 		}
 	}
 	for _, v := range notifications {
