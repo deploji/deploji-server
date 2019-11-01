@@ -62,6 +62,7 @@ services:
     image: mailhog/mailhog
     ports:
       - 1025:1025
+      - 8025:8025
     labels:
       - "traefik.enable=true"
       - "traefik.port=8025"
