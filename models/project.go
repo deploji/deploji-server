@@ -16,7 +16,7 @@ type Project struct {
 
 func GetProjects() []*Project {
 	projects := make([]*Project, 0)
-	err := GetDB().Preload("SshKey").Find(&projects).Error
+	err := GetDB().Order("name asc").Preload("SshKey").Find(&projects).Error
 	if err != nil {
 		return nil
 	}

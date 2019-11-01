@@ -72,6 +72,7 @@ select * from jobs where id in (
 func GetJobs(page utils.Page, filters []utils.Filter) ([]*Job, *pagination.Paginator) {
 	var jobs []*Job
 	db := GetDB().
+		Order("id desc").
 		Preload("Application").
 		Preload("Inventory").
 		Preload("User").

@@ -11,7 +11,7 @@ type Team struct {
 
 func GetTeams() []*Team {
 	teams := make([]*Team, 0)
-	err := GetDB().Find(&teams).Error
+	err := GetDB().Order("name asc").Find(&teams).Error
 	if err != nil {
 		return nil
 	}

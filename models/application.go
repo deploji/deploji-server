@@ -22,6 +22,7 @@ type Application struct {
 func GetApplications() ([]*Application, error) {
 	applications := make([]*Application, 0)
 	err := GetDB().
+		Order("name asc").
 		Preload("Project").
 		Preload("Repository").
 		Preload("Inventories.Inventory").

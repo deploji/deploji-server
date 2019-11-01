@@ -21,7 +21,7 @@ func (Key) MarshalJSON() ([]byte, error) {
 
 func GetSshKeys() []*SshKey {
 	keys := make([]*SshKey, 0)
-	err := GetDB().Find(&keys).Error
+	err := GetDB().Order("title asc").Find(&keys).Error
 	if err != nil {
 		fmt.Println(err)
 		return nil

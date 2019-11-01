@@ -16,6 +16,7 @@ func GetProjectNotifications(id uint) *[]ProjectNotification {
 	}
 	var notifications []ProjectNotification
 	if err := GetDB().
+		Order("notification_channel_id asc").
 		Preload("NotificationChannel").
 		Where("project_id=?", id).
 		Find(&notifications).Error;

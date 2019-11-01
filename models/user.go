@@ -32,7 +32,7 @@ func (Password) MarshalJSON() ([]byte, error) {
 
 func GetUsers() []*User {
 	users := make([]*User, 0)
-	err := GetDB().Find(&users).Error
+	err := GetDB().Order("username asc").Find(&users).Error
 	if err != nil {
 		return nil
 	}

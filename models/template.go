@@ -26,7 +26,12 @@ type Template struct {
 
 func GetTemplates() []*Template {
 	templates := make([]*Template, 0)
-	err := GetDB().Preload("Project").Preload("Inventory").Preload("SshKey").Find(&templates).Error
+	err := GetDB().
+		Preload("Project").
+		Preload("Inventory").
+		Preload("SshKey").
+		Order("name asc").
+		Find(&templates).Error
 	if err != nil {
 		return nil
 	}

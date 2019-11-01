@@ -16,7 +16,7 @@ type Repository struct {
 
 func GetRepositories() []*Repository {
 	var repositories []*Repository
-	err := GetDB().Find(&repositories).Error
+	err := GetDB().Order("name asc").Find(&repositories).Error
 	if err != nil {
 		return nil
 	}

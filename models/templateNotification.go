@@ -16,6 +16,7 @@ func GetTemplateNotifications(id uint) *[]TemplateNotification {
 	}
 	var notifications []TemplateNotification
 	if err := GetDB().
+		Order("notification_channel_id asc").
 		Preload("NotificationChannel").
 		Where("template_id=?", id).
 		Find(&notifications).Error;

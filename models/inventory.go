@@ -17,6 +17,7 @@ type Inventory struct {
 func GetInventories() []*Inventory {
 	inventories := make([]*Inventory, 0)
 	err := GetDB().
+		Order("name asc").
 		Preload("Project").
 		Preload("ApplicationInventories.Application").
 		Find(&inventories).Error

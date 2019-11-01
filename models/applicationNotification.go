@@ -16,6 +16,7 @@ func GetApplicationNotifications(id uint) *[]ApplicationNotification {
 	}
 	var notifications []ApplicationNotification
 	if err := GetDB().
+		Order("notification_channel_id asc").
 		Preload("NotificationChannel").
 		Where("application_id=?", id).
 		Find(&notifications).Error;

@@ -21,7 +21,11 @@ type ApplicationInventory struct {
 
 func GetApplicationInventories() ([]*ApplicationInventory, error) {
 	applicationInventories := make([]*ApplicationInventory, 0)
-	err := GetDB().Preload("Application").Preload("Inventory").Find(&applicationInventories).Error
+	err := GetDB().
+		Order("id asc").
+		Preload("Application").
+		Preload("Inventory").
+		Find(&applicationInventories).Error
 	if err != nil {
 		return nil, err
 	}
