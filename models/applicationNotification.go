@@ -33,6 +33,9 @@ func GetApplicationNotifications(id uint) *[]ApplicationNotification {
 		}
 	}
 	for _, v := range notifications {
+		if v.NotificationChannel.ID == 0 {
+			continue
+		}
 		notificationsMap[v.NotificationChannelID] = v
 	}
 	notifications = make([]ApplicationNotification, 0)

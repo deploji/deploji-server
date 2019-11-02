@@ -33,6 +33,9 @@ func GetProjectNotifications(id uint) *[]ProjectNotification {
 		}
 	}
 	for _, v := range notifications {
+		if v.NotificationChannel.ID == 0 {
+			continue
+		}
 		notificationsMap[v.NotificationChannelID] = v
 	}
 	notifications = make([]ProjectNotification, 0)

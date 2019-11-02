@@ -48,6 +48,7 @@ var SaveJobs = func(w http.ResponseWriter, r *http.Request) {
 	if !auth.VerifyID(job.ID, r, w, "id") {
 		return
 	}
+	job.User = models.User{}
 	job.UserID = services.GetJWTClaims(r).UserID
 	err = models.SaveJob(&job)
 	if err != nil {
