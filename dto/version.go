@@ -2,7 +2,7 @@ package dto
 
 type Version struct {
 	Name    string
-	Value string
+	Value   string
 	SortKey string `json:"-"`
 }
 
