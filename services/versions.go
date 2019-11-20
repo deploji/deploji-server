@@ -76,15 +76,16 @@ var GetVersions = func(appId uint) ([]dto.Version, error) {
 			for _, item := range response["items"].([]interface{}) {
 				version := regex.ReplaceAllString(item.(map[string]interface{})["version"].(string), "-SNAPSHOT")
 				snapshotData := regex.FindStringSubmatch(item.(map[string]interface{})["version"].(string))
+				name := version
 				if len(snapshotData) == 4 {
 					date, err := time.Parse("20060102", snapshotData[1])
 					time, err2 := time.Parse("150405", snapshotData[2])
 					if err == nil && err2 == nil {
-						version = version + " | " + date.Format("2006-01-02") + " " + time.Format("15:04:05") + " | Build number: #" + snapshotData[3]
+						name += " | " + date.Format("2006-01-02") + " " + time.Format("15:04:05") + " | Build number: #" + snapshotData[3]
 					}
 				}
 
-				versionsMap[version] = dto.Version{Name: version, SortKey: getSortKey(version)}
+				versionsMap[version] = dto.Version{Name: name, Value: version, SortKey: getSortKey(version)}
 			}
 		}
 		for _, item := range versionsMap {
