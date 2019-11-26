@@ -26,7 +26,7 @@ var GetVersions = func(appId uint) ([]dto.Version, error) {
 			return nil, err
 		}
 		for _, item := range response {
-			versions = append(versions, dto.Version{Name: item["name"]})
+			versions = append(versions, dto.Version{Name: item["name"], Value: item["name"]})
 		}
 		for i, j := 0, len(versions)-1; i < j; i, j = i+1, j-1 {
 			versions[i], versions[j] = versions[j], versions[i]
@@ -42,7 +42,7 @@ var GetVersions = func(appId uint) ([]dto.Version, error) {
 		}
 
 		for _, item := range response["tags"].([]interface{}) {
-			versions = append(versions, dto.Version{Name: item.(string)})
+			versions = append(versions, dto.Version{Name: item.(string), Value: item.(string)})
 		}
 		for i, j := 0, len(versions)-1; i < j; i, j = i+1, j-1 {
 			versions[i], versions[j] = versions[j], versions[i]
