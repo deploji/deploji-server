@@ -11,7 +11,7 @@ type Inventory struct {
 	Project                Project
 	ProjectID              uint
 	SourceFile             string
-	ApplicationInventories []ApplicationInventory
+	ApplicationInventories []*ApplicationInventory
 }
 
 func GetInventories() []*Inventory {

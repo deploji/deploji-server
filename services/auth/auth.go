@@ -259,6 +259,7 @@ func createPermissions(user dto.JWTClaims, objectType dto.ObjectType, objectId u
 		Read:  Enforce(user, objectType, objectId, dto.ActionTypeRead),
 		Write: Enforce(user, objectType, objectId, dto.ActionTypeWrite),
 		Admin: Enforce(user, objectType, objectId, dto.ActionTypeAdmin),
+		Use: Enforce(user, objectType, objectId, dto.ActionTypeUse),
 	}
 }
 
@@ -305,6 +306,20 @@ func FilterInventories(inventories []*models.Inventory, user dto.JWTClaims) []*m
 	for _, inventory := range inventories {
 		if Enforce(user, dto.ObjectTypeInventory, inventory.ID, dto.ActionTypeRead) {
 			InsertInventoryPermissions(inventory, user)
+			inventory.ApplicationInventories = FilterApplicationInventories(inventory.ApplicationInventories, user)
+			result = append(result, inventory)
+		}
+	}
+	return result
+}
+
+func FilterApplicationInventories(inventories []*models.ApplicationInventory, user dto.JWTClaims) []*models.ApplicationInventory {
+	result := make([]*models.ApplicationInventory, 0)
+	for _, inventory := range inventories {
+		if Enforce(user, dto.ObjectTypeInventory, inventory.InventoryID, dto.ActionTypeRead) &&
+			Enforce(user, dto.ObjectTypeApplications, inventory.ApplicationID, dto.ActionTypeRead) {
+			InsertInventoryPermissions(&inventory.Inventory, user)
+			InsertApplicationPermissions(&inventory.Application, user)
 			result = append(result, inventory)
 		}
 	}
@@ -316,7 +331,19 @@ func FilterApplications(applications []*models.Application, user dto.JWTClaims) 
 	for _, app := range applications {
 		if Enforce(user, dto.ObjectTypeApplications, app.ID, dto.ActionTypeRead) {
 			InsertApplicationPermissions(app, user)
+			app.Inventories = FilterApplicationInventories(app.Inventories, user)
 			result = append(result, app)
+		}
+	}
+	return result
+}
+
+func FilterJobs(inventories []*models.ApplicationInventory, user dto.JWTClaims) []*models.ApplicationInventory {
+	result := make([]*models.ApplicationInventory, 0)
+	for _, inventory := range inventories {
+		if Enforce(user, dto.ObjectTypeInventory, inventory.InventoryID, dto.ActionTypeRead) &&
+			Enforce(user, dto.ObjectTypeApplications, inventory.ApplicationID, dto.ActionTypeRead) {
+			result = append(result, inventory)
 		}
 	}
 	return result

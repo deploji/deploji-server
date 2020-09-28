@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/deploji/deploji-server/dto"
 	"github.com/deploji/deploji-server/models"
 	"github.com/deploji/deploji-server/services"
 	"github.com/deploji/deploji-server/services/amqpService"
@@ -49,7 +50,16 @@ var SaveJobs = func(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	job.User = models.User{}
-	job.UserID = services.GetJWTClaims(r).UserID
+	jwt := services.GetJWTClaims(r)
+	job.UserID = jwt.UserID
+	if job.Type == models.TypeDeployment && !auth.Enforce(jwt, dto.ObjectTypeApplications, job.ApplicationID, dto.ActionTypeUse) {
+		utils.Error(w, fmt.Sprintf("Access denied to application: %d", job.ApplicationID), err, http.StatusForbidden)
+		return
+	}
+	if !auth.Enforce(jwt, dto.ObjectTypeInventory, job.InventoryID, dto.ActionTypeUse) {
+		utils.Error(w, fmt.Sprintf("Access denied to inventory: %d", job.InventoryID), err, http.StatusForbidden)
+		return
+	}
 	err = models.SaveJob(&job)
 	if err != nil {
 		utils.Error(w, "Cannot save job", err, http.StatusInternalServerError)

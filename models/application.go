@@ -14,7 +14,7 @@ type Application struct {
 	Repository         Repository
 	RepositoryID       uint
 	RepositoryArtifact string
-	Inventories        []ApplicationInventory
+	Inventories        []*ApplicationInventory
 	AnsiblePlaybook    string `gorm:"type:text"`
 	RepositoryGroup    string `gorm:"type:text"`
 }

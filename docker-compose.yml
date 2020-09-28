@@ -9,6 +9,25 @@ services:
     ports:
       - 5432:5432
 
+  mongo:
+    image: mongo
+    restart: always
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: example
+
+  mongo-express:
+    image: mongo-express
+    restart: always
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=default"
+      - "traefik.web.port=8081"
+      - "traefik.web.frontend.rule=PathPrefixStrip:/mongo/"
+    environment:
+      ME_CONFIG_MONGODB_ADMINUSERNAME: root
+      ME_CONFIG_MONGODB_ADMINPASSWORD: example
+
   rabbit:
     image: rabbitmq:3-management
     ports:
@@ -40,6 +59,23 @@ services:
       - "traefik.enable=true"
       - "traefik.port=8000"
       - "traefik.frontend.rule=PathPrefixStrip:/api/"
+
+  scheduler:
+    image: deploji/deploji-scheduler
+    build: ../deploji-scheduler
+    environment:
+      - SPRING_DATA_MONGODB_HOST=mongo
+      - SPRING_DATA_MONGODB_USERNAME=root
+      - SPRING_DATA_MONGODB_PASSWORD=example
+      - SPRING_DATA_MONGODB_DATABASE=deploji-scheduler
+      - SPRING_DATA_MONGODB_AUTHENTICATION_DATABASE=admin
+      - DEPLOJI_API_URL=http://localhost:8000
+      - DEPLOJI_JWT_SECRET=38ur43qrh43qti8314t3842qt93814tr93284y
+      - DEPLOJI_JWT_EXPIRATION=6000
+    labels:
+      - "traefik.enable=true"
+      - "traefik.port=8080"
+      - "traefik.frontend.rule=PathPrefixStrip:/api/schedules"
 
   worker:
     image: deploji/deploji-worker
