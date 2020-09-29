@@ -63,6 +63,8 @@ services:
   scheduler:
     image: deploji/deploji-scheduler
     build: ../deploji-scheduler
+    ports:
+      - 8001:8001
     environment:
       - SPRING_DATA_MONGODB_HOST=mongo
       - SPRING_DATA_MONGODB_USERNAME=root
@@ -74,7 +76,7 @@ services:
       - DEPLOJI_JWT_EXPIRATION=6000
     labels:
       - "traefik.enable=true"
-      - "traefik.port=8080"
+      - "traefik.port=8001"
       - "traefik.frontend.rule=PathPrefixStrip:/api/schedules"
 
   worker:

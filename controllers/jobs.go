@@ -17,7 +17,7 @@ import (
 
 var GetJobs = func(w http.ResponseWriter, r *http.Request) {
 	page := utils.NewPage(r)
-	filters := utils.NewFilters(r, []string{"application_id", "inventory_id"})
+	filters := utils.NewFilters(r, []string{"application_id", "inventory_id", "user_id"})
 	jobs, paginator := models.GetJobs(page, filters)
 	w.Header().Add("X-Total-Count", fmt.Sprintf("%d", paginator.TotalRecord))
 	json.NewEncoder(w).Encode(jobs)
