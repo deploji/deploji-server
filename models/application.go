@@ -41,6 +41,7 @@ func GetApplication(id uint) *Application {
 		Preload("Inventories.Inventory").
 		Preload("Inventories.Application").
 		Preload("Inventories.Key").
+		Preload("Inventories.VaultKey").
 		First(&application, id).Error
 	if err != nil {
 		return nil

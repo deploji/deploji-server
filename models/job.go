@@ -32,6 +32,8 @@ type Job struct {
 	TemplateID     uint
 	Key            SshKey
 	KeyID          uint
+	VaultKey       SshKey
+	VaultKeyID     uint
 	User           User
 	UserID         uint
 	Status         Status
@@ -99,6 +101,7 @@ func GetJob(id uint) *Job {
 		Preload("User").
 		Preload("Inventory").
 		Preload("Key").
+		Preload("VaultKey").
 		First(&job, id).Error
 	if err != nil {
 		return nil

@@ -17,6 +17,8 @@ type ApplicationInventory struct {
 	Playbook        string `gorm:"type:text"`
 	Key             SshKey
 	KeyID           uint
+	VaultKey        SshKey
+	VaultKeyID      uint
 }
 
 func GetApplicationInventories() ([]*ApplicationInventory, error) {

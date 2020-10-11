@@ -14,8 +14,11 @@ type Template struct {
 	InventoryID          uint
 	SshKey               SshKey
 	SshKeyID             uint
+	VaultKey             SshKey
+	VaultKeyID           uint
 	Playbook             string `gorm:"type:text"`
 	PromptSshKey         bool
+	PromptVaultKey       bool
 	PromptPlaybook       bool
 	PromptInventory      bool
 	PromptProject        bool
@@ -30,6 +33,7 @@ func GetTemplates() []*Template {
 		Preload("Project").
 		Preload("Inventory").
 		Preload("SshKey").
+		Preload("VaultKey").
 		Order("name asc").
 		Find(&templates).Error
 	if err != nil {
@@ -45,6 +49,7 @@ func GetTemplate(id uint) *Template {
 		Preload("Inventory").
 		Preload("Survey").
 		Preload("SshKey").
+		Preload("VaultKey").
 		First(&template, id).Error
 	if err != nil {
 		return nil
