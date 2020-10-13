@@ -93,6 +93,7 @@ func main() {
 	authRouter.HandleFunc("/jobs/{id}/logs", controllers.GetJobLogs).Methods("GET")
 	authRouter.HandleFunc("/notification-channels", controllers.GetNotificationChannels).Methods("GET")
 	authRouter.HandleFunc("/vault/encrypt", controllers.Encrypt).Methods("POST")
+	authRouter.HandleFunc("/push-subscriptions", controllers.SavePushSubscription).Methods("POST")
 
 	adminRouter := mux.NewRouter()
 	adminRouter.HandleFunc("/teams", controllers.SaveTeam).Methods("POST")

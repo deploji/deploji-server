@@ -29,6 +29,7 @@ func GetApplicationNotifications(id uint) *[]ApplicationNotification {
 				NotificationChannelID: v.ID,
 				SuccessEnabled:        false,
 				FailEnabled:           false,
+				StartEnabled:          false,
 			},
 		}
 	}

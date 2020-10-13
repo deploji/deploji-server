@@ -91,6 +91,8 @@ services:
   web:
     image: deploji/deploji
     build: ../deploji
+    volumes:
+    - ../deploji:/usr/share/nginx/html
     labels:
       - "traefik.enable=true"
       - "traefik.port=80"

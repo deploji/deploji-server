@@ -9,7 +9,7 @@ RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o /go/bin/deploji-s
 FROM alpine:latest
 ENV STORAGE_DIR=storage/repositories \
     GORM_LOG_MODE=false
-RUN apk --no-cache add ca-certificates
+RUN apk --no-cache add ca-certificates ansible
 WORKDIR /root/
 COPY --from=builder /go/bin/deploji-server .
 COPY .env .

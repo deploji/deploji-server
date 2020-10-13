@@ -16,7 +16,7 @@ type NotificationChannel struct {
 
 func GetNotificationChannels() []*NotificationChannel {
 	notificationChannels := make([]*NotificationChannel, 0)
-	err := GetDB().Where("type!='user_email'").Order("name asc").Find(&notificationChannels).Error
+	err := GetDB().Where("user_id = 0").Order("name asc").Find(&notificationChannels).Error
 	if err != nil {
 		return notificationChannels
 	}

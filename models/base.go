@@ -43,6 +43,7 @@ func InitDatabase() {
 		&ApplicationNotification{},
 		&TemplateNotification{},
 		&ProjectNotification{},
+		&PushSubscription{},
 		&Survey{},
 		&SurveyInput{},
 		&SettingGroup{})

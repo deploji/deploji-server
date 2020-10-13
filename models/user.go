@@ -67,6 +67,10 @@ func SaveUser(user *User) error {
 		if err := GetDB().Create(&notificationChannel).Error; err != nil {
 			return err
 		}
+		notificationChannel = NotificationChannel{Type: "webpush", UserID: user.ID, Name: "Web push"}
+		if err := GetDB().Create(&notificationChannel).Error; err != nil {
+			return err
+		}
 	} else {
 		db := GetDB().Omit("created_at")
 		if user.Password == "" {

@@ -65,6 +65,12 @@ var SaveApplicationNotification = func(w http.ResponseWriter, r *http.Request) {
 		utils.Error(w, "Cannot decode applicationNotification", err, http.StatusInternalServerError)
 		return
 	}
+	notificationChannel := models.GetNotificationChannel(applicationNotification.NotificationChannelID)
+	jwt := services.GetJWTClaims(r)
+	if jwt.Type != models.UserTypeAdmin && notificationChannel.UserID != jwt.UserID {
+		utils.Error(w, "Permission denied", err, http.StatusForbidden)
+		return
+	}
 	if err := models.SaveApplicationNotification(&applicationNotification); nil != err {
 		utils.Error(w, "Cannot save applicationNotification", err, http.StatusInternalServerError)
 		return

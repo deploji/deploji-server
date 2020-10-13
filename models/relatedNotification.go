@@ -3,6 +3,7 @@ package models
 type RelatedNotification struct {
 	NotificationChannel   NotificationChannel
 	NotificationChannelID uint `gorm:"primary_key"`
+	StartEnabled          bool
 	SuccessEnabled        bool
 	FailEnabled           bool
 }

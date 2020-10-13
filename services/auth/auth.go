@@ -362,7 +362,7 @@ func FilterTemplateNotifications(notifications *[]models.TemplateNotification, u
 func FilterApplicationNotifications(notifications *[]models.ApplicationNotification, user dto.JWTClaims) *[]models.ApplicationNotification {
 	result := make([]models.ApplicationNotification, 0)
 	for _, notification := range *notifications {
-		if notification.NotificationChannel.UserID == 0 || notification.NotificationChannel.UserID == user.UserID {
+		if (user.Type == models.UserTypeAdmin && notification.NotificationChannel.UserID == 0) || notification.NotificationChannel.UserID == user.UserID {
 			result = append(result, notification)
 		}
 	}
