@@ -22,6 +22,15 @@ func FindByEndpoint(endpoint string) *PushSubscription {
 	return &pushSubscription
 }
 
+func FindByUserID(id uint) []*PushSubscription {
+	var pushSubscriptions []*PushSubscription
+	err := GetDB().Where("user_id = ?", id).Find(&pushSubscriptions).Error
+	if err != nil {
+		return nil
+	}
+	return pushSubscriptions
+}
+
 func SavePushSubscription(endpoint string, expirationTime uint, auth string, p256dh string, userID uint) error {
 	record := FindByEndpoint(endpoint)
 	record.UserID = userID
