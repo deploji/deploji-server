@@ -16,8 +16,13 @@ var SavePushSubscription = func(w http.ResponseWriter, r *http.Request) {
 		utils.Error(w, "Cannot decode sub", err, http.StatusInternalServerError)
 		return
 	}
+	subJson, err := json.Marshal(sub)
+	if nil != err {
+		utils.Error(w, "Cannot marshal sub", err, http.StatusInternalServerError)
+		return
+	}
 	jwt := services.GetJWTClaims(r)
-	err = models.SavePushSubscription(sub.Endpoint, sub.ExpirationTime, sub.Keys.Auth, sub.Keys.P256dh, jwt.UserID)
+	err = models.SavePushSubscription(sub.Endpoint, string(subJson), jwt.UserID)
 	if nil != err {
 		utils.Error(w, "Cannot save sub", err, http.StatusInternalServerError)
 		return
