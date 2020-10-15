@@ -55,5 +55,6 @@ func WriteKey(id uint, content models.Key) (string, error) {
 		log.Printf("Error saving key file: %s", err)
 		return "", err
 	}
+	os.Chmod(fmt.Sprintf("storage/keys/%d", id), 0600)
 	return fmt.Sprintf("storage/keys/%d", id), nil
 }

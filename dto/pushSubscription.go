@@ -1,12 +1,11 @@
 package dto
 
 type PushSubscriptionDTO struct {
-	Endpoint       string
-	ExpirationTime uint
-	Keys Keys
+	Endpoint string `json:"endpoint"`
+	Keys     Keys   `json:"keys"`
 }
 
 type Keys struct {
-	P256dh string
-	Auth string
+	P256dh string `json:"p256dh"`
+	Auth   string `json:"auth"`
 }

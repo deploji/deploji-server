@@ -110,6 +110,7 @@ func main() {
 	adminRouter.HandleFunc("/users/{id}/permissions", controllers.GetUserPermissions).Methods("GET")
 	adminRouter.HandleFunc("/settings", controllers.GetSettings).Methods("GET")
 	adminRouter.HandleFunc("/settings", controllers.SaveSettings).Methods("PUT")
+	adminRouter.HandleFunc("/settings/generate-vapid-keys", controllers.GenerateVapidKeys).Methods("GET")
 	adminRouter.HandleFunc("/repositories", controllers.GetRepositories).Methods("GET")
 	adminRouter.HandleFunc("/repositories", controllers.SaveRepositories).Methods("POST")
 	adminRouter.HandleFunc("/repositories/{id}", controllers.SaveRepositories).Methods("PUT")
@@ -133,6 +134,7 @@ func main() {
 	openRouter := mux.NewRouter()
 	openRouter.HandleFunc("/auth/authenticate", controllers.Authenticate).Methods("POST")
 	openRouter.HandleFunc("/auth/refresh", controllers.Refresh).Methods("POST")
+	openRouter.HandleFunc("/front-settings", controllers.GetFrontSettings).Methods("GET")
 
 	authNegroni := negroni.New(
 		negroni.HandlerFunc(middleware.JwtMiddleware),
