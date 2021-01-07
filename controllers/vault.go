@@ -34,7 +34,7 @@ var Encrypt = func(w http.ResponseWriter, r *http.Request) {
 		utils.Error(w, "", err, http.StatusInternalServerError)
 		return
 	}
-	cmd := exec.Command("ansible-vault", "encrypt_string", "--name", encrypt.Name, "--vault-id", vaultKeyPath, fmt.Sprintf("'%s'", encrypt.Content))
+	cmd := exec.Command("ansible-vault", "encrypt_string", "--name", encrypt.Name, "--vault-id", vaultKeyPath, fmt.Sprintf("%s", encrypt.Content))
 	stdout, err := cmd.CombinedOutput()
 
 	if err != nil {
