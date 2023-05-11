@@ -12,9 +12,8 @@ require (
 	github.com/denisenkom/go-mssqldb v0.0.0-20190724012636-11b2859924c1 // indirect
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/dhui/dktest v0.3.1 // indirect
-	github.com/docker/distribution v2.7.1+incompatible // indirect
+	github.com/docker/distribution v2.8.2+incompatible // indirect
 	github.com/docker/go-units v0.4.0 // indirect
-	github.com/go-sql-driver/mysql v1.4.1
 	github.com/gogo/protobuf v1.2.2-0.20190730201129-28a6bbf47e48 // indirect
 	github.com/golang-migrate/migrate/v4 v4.5.0
 	github.com/gorilla/mux v1.7.3
